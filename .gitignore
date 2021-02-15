@@ -1,0 +1,25 @@
+# @(#) Code/.gitignore
+# Last-edited: Mon 2021.02.15.1733-- Danny Quah (me@DannyQuah.com)
+# ----------------------------------------------------------------
+# Revision History:
+#  % Mon 2021.02.15.1731 -- Danny Quah (me@DannyQuah.com)
+#    First draft: Ignore in git updates
+# ----------------------------------------------------------------
+*~
+*.swp
+2007.03-AccessBasics.zip
+2014.02-R-restart/
+2014.02-World-Trade/
+2014.03-World-Growth/
+2014.04-Global-Dynamics/
+2014.11-my-Data/
+2015.01-World-Economic-Geography/
+2015.09-Asia-Pew-Attitudes/
+2018.01-3D-DS/
+Python-2020.07/
+Routines/
+Sandbox-2014.03/
+webgl-globe-master.zip
+
+# eof Code/.gitignore
+
