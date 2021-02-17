@@ -1,5 +1,5 @@
 # @(#) Code/.gitignore
-# Last-edited: Mon 2021.02.15.1749-- Danny Quah (me@DannyQuah.com)
+# Last-edited: Mon 2021.02.15.1752-- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Revision History:
 #  % Mon 2021.02.15.1731 -- Danny Quah (me@DannyQuah.com)
@@ -7,6 +7,7 @@
 # ----------------------------------------------------------------
 *~
 *.swp
+.Rhistory
 2007.03-AccessBasics.zip
 2014.02-R-restart/
 2014.02-World-Trade/

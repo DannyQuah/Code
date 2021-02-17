@@ -1,5 +1,5 @@
 # @(#) dl_wid_data.R // World Inequality Database
-# Last-edited: Sun 2021.02.14.1745-- Danny Quah (me@DannyQuah.com)
+# Last-edited: Wed 2021.02.17.1647-- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Revision History:
 #  % Fri 2021.02.12.1817 -- Danny Quah (me@DannyQuah.com)
@@ -16,15 +16,14 @@
 #'     authorative source. Downloading the cached version is faster.
 #'     Defaults to \code{FALSE}.
 #' @param readOnline Whether to read online or from local disk,
-#'     to save network bandwidth. Ignored if cached is \code{TRUE}.
-#'     Defaults to \code{FALSE}.
-#' @return A data table containing the data.
+#'     to save network bandwidth. Defaults to \code{FALSE}.
+#' @return Data table
 #'
 #' @examples
 #' tbd
 #'
 #' @export
-dl_wid_data <- function(silent = FALSE, cached = FASLE, readOnline = FALSE,
+dl_wid_data <- function(silent = FALSE, cached = FALSE, readOnline = FALSE,
   theAreas = "all", theYears = "all") {
   if (length(silent) > 1 || !is.logical(silent)) stop(
     "'silent' has to be a single logical value."
@@ -35,16 +34,16 @@ dl_wid_data <- function(silent = FALSE, cached = FASLE, readOnline = FALSE,
 
 # String constants for portability
   aggrNames <- data.table(
-                          indicAggr = c("anninc",     "xlcusx"),
-                          namesAggr = c("avgNatlInc", "exchRateUS")
+    indicAggr = c("anninc", "xlcusx", "xlceux", "inyixx"), 
+    namesAggr = c("avgNatlInc", "exchRateUS", "exchRateEU", "niPrcIndex")
                           )
   distNames <- data.table(
-                          indicDistr = c("sptinc", "aptinc", "tptinc"),
-                          namesDistr = c("shr",    "avg",    "trh")
+    indicDistr = c("sptinc", "aptinc", "tptinc"),
+    namesDistr = c("shr",    "avg",    "trh")
                           )
   percNames <- data.table(
-                          uP = c("p0p50", "p90p100"),
-                          nP = c("B50",   "T10")
+    uP = c("p0p50", "p90p100"),
+    nP = c("B50",   "T10")
                           )
   thePercAll     <- "p0p100"
   theAges20P     <- "992"
@@ -53,7 +52,7 @@ dl_wid_data <- function(silent = FALSE, cached = FASLE, readOnline = FALSE,
   thePopIndivs   <- "i"
   strDataName <- "World Inequality Database"
   strLocalRDS <- file.path("~", "0", "Light", "1", "j", "Data-Cloud", "WID", "wid_data.RDS")
-  strMyOnlineRDS <- "https://raw.githubusercontent.com/DannyQuah/Data-Cloud/blob/main/WID/wid_data.RDS"
+  strMyOnlineRDS <- "https://raw.githubusercontent.com/DannyQuah/Data-Cloud/master//WID/wid_data.RDS"
   strLocalVersion <- file.path("~", "0", "Light", "1", "j", "Data-Cloud", "WID", "wid_data.csv")
   strOnlineCache <- "nttps://raw.githubusercontent.com/widWORLD/data/master/public/data/widWORLD.csv"
   myNAstrings <- c("n/a", "--", "")
@@ -74,6 +73,7 @@ dl_wid_data <- function(silent = FALSE, cached = FASLE, readOnline = FALSE,
 
   if (!cached) {
     if (!readOnline) {
+      stop ("This isn't available, and shouldn't be needed anyway.")
       if (!silent) message("Local disk version of ", strDataName,
                            " data", appendLF = FALSE)
       data_raw <- read.csv(strLocalVersion,
