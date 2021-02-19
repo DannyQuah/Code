@@ -1,6 +1,6 @@
 #!/usr/bin/env R
 # @(#) inequality-mobility-2021.02.R
-# Last-edited: Wed 2021.02.17.1709-- Danny Quah (me@DannyQuah.com)
+# Last-edited: Fri 2021.02.19.1501-- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Revision History:
 #  % Fri 2021.02.12.1733  -- Danny Quah (me@DannyQuah.com)
@@ -28,20 +28,36 @@ useYears      <- 1980:2019
 theWIDdata.dt <- dl_wid_data(silent = FALSE, cached = TRUE,
   readOnline = FALSE, theAreas = useAreas, theYears = useYears)
 
-# Choose one of these to decide which currency denomination to use.
-# Because the underlying data are LCU, setting useCurr to 1.0 catches
-# that. Alternatively, inflation-deflated values derive from
-# setting useCurr to the national income price index
-# useCurr <- exchRateUS
-# useCurr <- exchRateEU
-useCurr <- 1.0
+# For consistent usage, add a variable that is all 1's
+theWIDdata.dt <- theWIDdata.dt %>%
+  mutate(exchRateLCU = 1.0)
+
+# Choose one of the following to determine currency denomination to use.
+# Because the underlying data are LCU in constant prices,
+# setting the exchange rate to 1.0 catches that.
+
+inLCU <- "exchRateLCU"
+inUSD <- "exchRateUS"
+inEUR <- "exchRateEU"
+
+
+currUse.dt <- data.table(
+  thisCurr = c(inLCU, inUSD, inEUR),
+  nameCurr = c("LCU", "USD", "EUR")
+                        )
+theCurr  <- 1 # Choose index into currUse.dt
+
+useCurr  <- currUse.dt$thisCurr[theCurr]
+nameCurr <- currUse.dt$nameCurr[theCurr]
+vrbCurr  <- theWIDdata.dt[[useCurr]]
+currAxis <- paste0(nameCurr, "x10^3")
 
 theWIDdata.dt <- theWIDdata.dt %>%
-  mutate(avgB50d  = avgB50 / (1000 * useCurr)) %>%
-  mutate(trhB50d  = trhB50 / (1000 * useCurr)) %>%
-  mutate(avgT10d  = avgT10 / (1000 * useCurr)) %>%
-  mutate(trhT10d  = trhT10 / (1000 * useCurr)) %>%
-  mutate(avgNIuse = avgNatlInc / (1000 * useCurr)) %>%
+  mutate(avgB50d  = avgB50 / (1000 * vrbCurr)) %>%
+  mutate(trhB50d  = trhB50 / (1000 * vrbCurr)) %>%
+  mutate(avgT10d  = avgT10 / (1000 * vrbCurr)) %>%
+  mutate(trhT10d  = trhT10 / (1000 * vrbCurr)) %>%
+  mutate(avgNIuse = avgNatlInc / (1000 * vrbCurr)) %>%
   mutate(avgB50c  = shrB50 * avgNIuse / 0.5) %>%
   mutate(avgT10c  = shrT10 * avgNIuse / 0.1) %>%
   mutate(ineqQ    = avgT10c - avgB50c) %>%
@@ -61,7 +77,7 @@ theWIDdata.dt %>%
   filter(economy == theEconomy) %>%
   ggplot(., aes(x = year)) +
   labs(title = paste0(theEconomy, " - Inequality, B50"),
-                      y = "USDx10^3") +
+                      y = currAxis) +
   geom_line(aes(y = avgB50c), color = "darkred",
             linetype = "solid", size = 1.5) +
   geom_line(aes(y = ineqQ), color = "darkblue",
@@ -72,7 +88,7 @@ theWIDdata.dt %>%
   filter(economy == theEconomy) %>%
   ggplot(., aes(x = year)) +
   labs(title = paste0(theEconomy, " - B50"),
-                      y = "USDx10^3") +
+                      y = currAxis) +
   geom_line(aes(y = avgB50c), color = "darkred",
             linetype = "solid", size = 1.5) +
   theme_economist(base_size = 14)

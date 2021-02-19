@@ -1,5 +1,5 @@
 # @(#) dl_wid_data.R // World Inequality Database
-# Last-edited: Wed 2021.02.17.1647-- Danny Quah (me@DannyQuah.com)
+# Last-edited: Fri 2021.02.19.1341-- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Revision History:
 #  % Fri 2021.02.12.1817 -- Danny Quah (me@DannyQuah.com)
@@ -31,6 +31,27 @@ dl_wid_data <- function(silent = FALSE, cached = FALSE, readOnline = FALSE,
   if (length(cached) > 1 || !is.logical(cached)) stop(
     "'cached' has to be a single logical value."
   )
+
+# Reminders // Notes
+# What WID reports as net national income is actually real, i.e.,
+# measured in inflation-deflated LCUs.
+# The reason for this is the key statement in 2.1.2
+# "All monetary amounts are in local currency at constant prices
+# for countries and country subregions."
+#
+# WID's reporting  inyixxx999i is then actually to allow researchers
+# to undo what they've done, i.e., if a research wants LCUs in
+# nominal values. 
+
+# Pulling their data off in spreadsheet format (using dropdown menus)
+# allows setting all data to constant inflation-adjusted Euros,
+# even going back past 1999.  
+# In contrast, Using the direct extraction via the API, that
+# denomination is not available, at least not before 1999,
+# which is actually the sensible thing, since the Euro did not
+# exist before 1999. Not officially anyway. 
+# I think what their spreadsheet/dropdown menu interface is
+# backward extrapolation using the ECU, not Euros. 
 
 # String constants for portability
   aggrNames <- data.table(
