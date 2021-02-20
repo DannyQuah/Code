@@ -1,6 +1,6 @@
 #!/usr/bin/env R
 # @(#) inequality-mobility-2021.02.R
-# Last-edited: Fri 2021.02.19.1643-- Danny Quah (me@DannyQuah.com)
+# Last-edited: Sat 2021.02.20.1948-- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Revision History:
 #  % Fri 2021.02.12.1733  -- Danny Quah (me@DannyQuah.com)
@@ -16,6 +16,7 @@ library(lubridate)
 ## remotes::install_github("WIDworld/wid-r-tool") 
 library(wid)
 source("./dl_wid_data.R", echo = FALSE)
+source("./utilfuncs.R", echo = FALSE)
 
 # In dl_wid_data() call, these "use*" arguments are used only 
 # when cached is FALSE and readOnline is TRUE so we're pulling
@@ -55,17 +56,13 @@ currAxis <- paste0(nameCurr, "x10^3")
 theYears <- c(1980, 2000, 2019)
 
 theWIDdata.dt <- theWIDdata.dt %>%
-  mutate(avgB50d  = avgB50 / (1000 * vrbCurr)) %>%
-  mutate(trhB50d  = trhB50 / (1000 * vrbCurr)) %>%
-  mutate(avgT10d  = avgT10 / (1000 * vrbCurr)) %>%
-  mutate(trhT10d  = trhT10 / (1000 * vrbCurr)) %>%
   mutate(avgNIuse = avgNatlInc / (1000 * vrbCurr)) %>%
   mutate(avgB50c  = shrB50 * avgNIuse / 0.5) %>%
   mutate(avgT10c  = shrT10 * avgNIuse / 0.1) %>%
   mutate(ineqQ    = avgT10c - avgB50c) %>%
   mutate(ineqq    = ineqQ / avgB50c)
 
-theEconomy <- "US"
+theEconomy <- "SG"
 theWIDdata.dt %>%
   filter(economy == theEconomy) %>%
   ggplot(., aes(x = year)) +
@@ -86,30 +83,31 @@ theWIDdata.dt %>%
             linetype = "solid", size = 1.5) +
   theme_economist(base_size = 14)
 
+
+
+
 theIndics.dt <- theWIDdata.dt %>%
   filter(economy == theEconomy) %>%
   filter(year %in% theYears) %>%
   select(ineqQ)
-message(theEconomy, " Inequality",
-  " (", theYears[3], "/", theYears[1], " ",
-  format(theIndics.dt[3]/theIndics.dt[1], digits=3), ")",
-  " (", theYears[3], "/", theYears[2], " ",
-  format(theIndics.dt[3]/theIndics.dt[2], digits=3), ")"
-        )
+theOutp.str <- " Inequality"
+showChangeGrowth(theIndics.dt, theEconomy, theOutp.str, theYears)
 
 theIndics.dt <- theWIDdata.dt %>%
   filter(economy == theEconomy) %>%
   filter(year %in% theYears) %>%
   select(avgB50c)
-message(theEconomy, " B50c",
-  " (", theYears[3], "/", theYears[1], " ",
-  format(theIndics.dt[3]/theIndics.dt[1], digits=3), ")",
-  " (", theYears[3], "/", theYears[2], " ",
-  format(theIndics.dt[3]/theIndics.dt[2], digits=3), ")"
-        )
+theOutp.str <- " B50c"
+showChangeGrowth(theIndics.dt, theEconomy, theOutp.str, theYears)
 
-# Just checks below; no need to run each time
+# Just additional checks below; no need to run each time
 #
+theWIDdata.dt <- theWIDdata.dt %>%
+  mutate(avgB50d  = avgB50 / (1000 * vrbCurr)) %>%
+  mutate(trhB50d  = trhB50 / (1000 * vrbCurr)) %>%
+  mutate(avgT10d  = avgT10 / (1000 * vrbCurr)) %>%
+  mutate(trhT10d  = trhT10 / (1000 * vrbCurr))
+
 theWIDdata.dt %>%
   filter(economy == "US") %>%
   ggplot(., aes(x = year)) +
