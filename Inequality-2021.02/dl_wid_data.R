@@ -1,5 +1,5 @@
 # @(#) dl_wid_data.R // World Inequality Database
-# Last-edited: Fri 2021.02.19.1341-- Danny Quah (me@DannyQuah.com)
+# Last-edited: Sun 2021.02.21.1039-- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Revision History:
 #  % Fri 2021.02.12.1817 -- Danny Quah (me@DannyQuah.com)
@@ -72,9 +72,13 @@ dl_wid_data <- function(silent = FALSE, cached = FALSE, readOnline = FALSE,
   thePopEqSplit  <- "j"
   thePopIndivs   <- "i"
   strDataName <- "World Inequality Database"
+# If you are not me, you'll want to change strLocalRDS and
+# strLocalVersion to point to the appropriate locations on
+# your local drive
   strLocalRDS <- file.path("~", "0", "Light", "1", "j", "Data-Cloud", "WID", "wid_data.RDS")
-  strMyOnlineRDS <- "https://raw.githubusercontent.com/DannyQuah/Data-Cloud/master//WID/wid_data.RDS"
   strLocalVersion <- file.path("~", "0", "Light", "1", "j", "Data-Cloud", "WID", "wid_data.csv")
+#
+  strMyOnlineRDS <- "https://raw.githubusercontent.com/DannyQuah/Data-Cloud/master/WID/wid_data.RDS"
   strOnlineCache <- "nttps://raw.githubusercontent.com/widWORLD/data/master/public/data/widWORLD.csv"
   myNAstrings <- c("n/a", "--", "")
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env R
 # @(#) inequality-mobility-2021.02.R
-# Last-edited: Sat 2021.02.20.1948-- Danny Quah (me@DannyQuah.com)
+# Last-edited: Sun 2021.02.21.1101-- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Revision History:
 #  % Fri 2021.02.12.1733  -- Danny Quah (me@DannyQuah.com)
@@ -62,7 +62,7 @@ theWIDdata.dt <- theWIDdata.dt %>%
   mutate(ineqQ    = avgT10c - avgB50c) %>%
   mutate(ineqq    = ineqQ / avgB50c)
 
-theEconomy <- "SG"
+theEconomy <- "US"
 theWIDdata.dt %>%
   filter(economy == theEconomy) %>%
   ggplot(., aes(x = year)) +
@@ -83,9 +83,6 @@ theWIDdata.dt %>%
             linetype = "solid", size = 1.5) +
   theme_economist(base_size = 14)
 
-
-
-
 theIndics.dt <- theWIDdata.dt %>%
   filter(economy == theEconomy) %>%
   filter(year %in% theYears) %>%
@@ -100,22 +97,32 @@ theIndics.dt <- theWIDdata.dt %>%
 theOutp.str <- " B50c"
 showChangeGrowth(theIndics.dt, theEconomy, theOutp.str, theYears)
 
+theIndics.dt <- theWIDdata.dt %>%
+  filter(economy == theEconomy) %>%
+  filter(year %in% theYears) %>%
+  select(avgT10c)
+theOutp.str <- " T10C"
+showChangeGrowth(theIndics.dt, theEconomy, theOutp.str, theYears)
+
 # Just additional checks below; no need to run each time
 #
-theWIDdata.dt <- theWIDdata.dt %>%
-  mutate(avgB50d  = avgB50 / (1000 * vrbCurr)) %>%
-  mutate(trhB50d  = trhB50 / (1000 * vrbCurr)) %>%
-  mutate(avgT10d  = avgT10 / (1000 * vrbCurr)) %>%
-  mutate(trhT10d  = trhT10 / (1000 * vrbCurr))
+addlChecks <- FALSE
+if (addlChecks) {
+  theWIDdata.dt <- theWIDdata.dt %>%
+    mutate(avgB50d  = avgB50 / (1000 * vrbCurr)) %>%
+    mutate(trhB50d  = trhB50 / (1000 * vrbCurr)) %>%
+    mutate(avgT10d  = avgT10 / (1000 * vrbCurr)) %>%
+    mutate(trhT10d  = trhT10 / (1000 * vrbCurr))
 
-theWIDdata.dt %>%
-  filter(economy == "US") %>%
-  ggplot(., aes(x = year)) +
-  geom_line(aes(y = avgB50c), color = "darkred",
-            linetype = "solid", size = 1.5) +
-  geom_line(aes(y = avgB50d), color = "steelblue",
-            linetype = "longdash", size = 1.5) +
-  theme_economist(base_size = 14)
+  theWIDdata.dt %>%
+    filter(economy == "US") %>%
+    ggplot(., aes(x = year)) +
+    geom_line(aes(y = avgB50c), color = "darkred",
+              linetype = "solid", size = 1.5) +
+    geom_line(aes(y = avgB50d), color = "steelblue",
+              linetype = "longdash", size = 1.5) +
+    theme_economist(base_size = 14)
+}
 
 # eof inequality-mobility-2021.02.R
 
