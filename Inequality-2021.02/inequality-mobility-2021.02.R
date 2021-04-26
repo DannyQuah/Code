@@ -1,6 +1,6 @@
 #!/usr/bin/env R
 # @(#) inequality-mobility-2021.02.R
-# Last-edited: Sun 2021.02.21.1101-- Danny Quah (me@DannyQuah.com)
+# Last-edited: Sun 2021.04.25.2038 -- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Revision History:
 #  % Fri 2021.02.12.1733  -- Danny Quah (me@DannyQuah.com)
@@ -30,24 +30,21 @@ theWIDdata.dt <- dl_wid_data(silent = FALSE, cached = TRUE,
   readOnline = FALSE, theAreas = useAreas, theYears = useYears)
 
 # For consistent usage, add a variable that is all 1's
-theWIDdata.dt <- theWIDdata.dt %>%
-  mutate(exchRateLCU = 1.0)
+theWIDdata.dt <- theWIDdata.dt %>% mutate(exchRateLCU = 1.0)
 
 # Choose one of the following to determine currency denomination to use.
-# Because the underlying data are LCU in constant prices,
+# Because the underlying data are already LCU in constant prices,
 # setting the exchange rate to 1.0 catches that.
 
 inLCU <- "exchRateLCU"
 inUSD <- "exchRateUS"
 inEUR <- "exchRateEU"
 
-
 currUse.dt <- data.table(
   thisCurr = c(inLCU, inUSD, inEUR),
   nameCurr = c("LCU", "USD", "EUR")
                         )
-theCurr  <- 1 # Choose index into currUse.dt
-
+theCurr  <- 1 # Choose index into currUse.dt // 1 - LCU, 2 - USD, ...
 useCurr  <- currUse.dt$thisCurr[theCurr]
 nameCurr <- currUse.dt$nameCurr[theCurr]
 vrbCurr  <- theWIDdata.dt[[useCurr]]
@@ -62,66 +59,27 @@ theWIDdata.dt <- theWIDdata.dt %>%
   mutate(ineqQ    = avgT10c - avgB50c) %>%
   mutate(ineqq    = ineqQ / avgB50c)
 
-theEconomy <- "US"
-theWIDdata.dt %>%
-  filter(economy == theEconomy) %>%
-  ggplot(., aes(x = year)) +
-  labs(title = paste0(theEconomy, " - Inequality, B50"),
-                      y = currAxis) +
-  geom_line(aes(y = avgB50c), color = "darkred",
-            linetype = "solid", size = 1.5) +
-  geom_line(aes(y = ineqQ), color = "darkblue",
-            linetype = "longdash", size = 1.5) +
-  theme_economist(base_size = 14)
+# Selected economies
+myEconomies <- c("SG", "US", "CN")
+for (theEconomy in myEconomies) {
+  summaryShow(theWIDdata.dt, theEconomy, currAxis, theYears)
+}
 
-theWIDdata.dt %>%
-  filter(economy == theEconomy) %>%
-  ggplot(., aes(x = year)) +
-  labs(title = paste0(theEconomy, " - B50"),
-                      y = currAxis) +
-  geom_line(aes(y = avgB50c), color = "darkred",
-            linetype = "solid", size = 1.5) +
-  theme_economist(base_size = 14)
+worldRegions <- 1
+subntRegions <- 2
+exclEconomies <- c(regionList(subntRegions, theWIDdata.dt),
+                   regionList(worldRegions, theWIDdata.dt)
+                  )
 
-theIndics.dt <- theWIDdata.dt %>%
-  filter(economy == theEconomy) %>%
-  filter(year %in% theYears) %>%
-  select(ineqQ)
-theOutp.str <- " Inequality"
-showChangeGrowth(theIndics.dt, theEconomy, theOutp.str, theYears)
-
-theIndics.dt <- theWIDdata.dt %>%
-  filter(economy == theEconomy) %>%
-  filter(year %in% theYears) %>%
-  select(avgB50c)
-theOutp.str <- " B50c"
-showChangeGrowth(theIndics.dt, theEconomy, theOutp.str, theYears)
-
-theIndics.dt <- theWIDdata.dt %>%
-  filter(economy == theEconomy) %>%
-  filter(year %in% theYears) %>%
-  select(avgT10c)
-theOutp.str <- " T10C"
-showChangeGrowth(theIndics.dt, theEconomy, theOutp.str, theYears)
+# Cross section of economies
+theTimeSpan <- c(1980:2019)
+xSect.dt <- crossShow(theWIDdata.dt, exclEconomies, theTimeSpan)
 
 # Just additional checks below; no need to run each time
 #
 addlChecks <- FALSE
 if (addlChecks) {
-  theWIDdata.dt <- theWIDdata.dt %>%
-    mutate(avgB50d  = avgB50 / (1000 * vrbCurr)) %>%
-    mutate(trhB50d  = trhB50 / (1000 * vrbCurr)) %>%
-    mutate(avgT10d  = avgT10 / (1000 * vrbCurr)) %>%
-    mutate(trhT10d  = trhT10 / (1000 * vrbCurr))
-
-  theWIDdata.dt %>%
-    filter(economy == "US") %>%
-    ggplot(., aes(x = year)) +
-    geom_line(aes(y = avgB50c), color = "darkred",
-              linetype = "solid", size = 1.5) +
-    geom_line(aes(y = avgB50d), color = "steelblue",
-              linetype = "longdash", size = 1.5) +
-    theme_economist(base_size = 14)
+  addChecks(theWIDdata.dt, theEconomy, vrbCurr)
 }
 
 # eof inequality-mobility-2021.02.R

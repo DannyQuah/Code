@@ -1,5 +1,5 @@
 # @(#) dl_wid_data.R // World Inequality Database
-# Last-edited: Sun 2021.02.21.1039-- Danny Quah (me@DannyQuah.com)
+# Last-edited: Sat 2021.04.24.1855 -- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Revision History:
 #  % Fri 2021.02.12.1817 -- Danny Quah (me@DannyQuah.com)
@@ -23,8 +23,8 @@
 #' tbd
 #'
 #' @export
-dl_wid_data <- function(silent = FALSE, cached = FALSE, readOnline = FALSE,
-  theAreas = "all", theYears = "all") {
+dl_wid_data <- function(silent = FALSE, cached = FALSE,
+  readOnline = FALSE, theAreas = "all", theYears = "all") {
   if (length(silent) > 1 || !is.logical(silent)) stop(
     "'silent' has to be a single logical value."
   )
@@ -46,12 +46,13 @@ dl_wid_data <- function(silent = FALSE, cached = FALSE, readOnline = FALSE,
 # Pulling their data off in spreadsheet format (using dropdown menus)
 # allows setting all data to constant inflation-adjusted Euros,
 # even going back past 1999.  
-# In contrast, Using the direct extraction via the API, that
+# In contrast, using the direct extraction via the API, that
 # denomination is not available, at least not before 1999,
 # which is actually the sensible thing, since the Euro did not
 # exist before 1999. Not officially anyway. 
 # I think what their spreadsheet/dropdown menu interface is
-# backward extrapolation using the ECU, not Euros. 
+# backward extrapolation using the ECU, not Euros.  In any case,
+# I am not using that any longer.
 
 # String constants for portability
   aggrNames <- data.table(
@@ -72,25 +73,27 @@ dl_wid_data <- function(silent = FALSE, cached = FALSE, readOnline = FALSE,
   thePopEqSplit  <- "j"
   thePopIndivs   <- "i"
   strDataName <- "World Inequality Database"
-# If you are not me, you'll want to change strLocalRDS and
+# Since you are not me, you'll want to change strLocalRDS and
 # strLocalVersion to point to the appropriate locations on
 # your local drive
-  strLocalRDS <- file.path("~", "0", "Light", "1", "j", "Data-Cloud", "WID", "wid_data.RDS")
-  strLocalVersion <- file.path("~", "0", "Light", "1", "j", "Data-Cloud", "WID", "wid_data.csv")
+  strLocalRDS <- file.path("~", "0", "Light", "1", "j", "Data-Cloud",
+                           "WID", "wid_data.RDS")
+  strLocalVersion <- file.path("~", "0", "Light", "1", "j", "Data-Cloud",
+                               "WID", "wid_data.csv")
 #
   strMyOnlineRDS <- "https://raw.githubusercontent.com/DannyQuah/Data-Cloud/master/WID/wid_data.RDS"
-  strOnlineCache <- "nttps://raw.githubusercontent.com/widWORLD/data/master/public/data/widWORLD.csv"
+  strOnlineCache <- "https://raw.githubusercontent.com/widWORLD/data/master/public/data/widWORLD.csv"
   myNAstrings <- c("n/a", "--", "")
 
   if (cached) {
     if (!silent) message("Cached version of ", strDataName, " data",
                          appendLF = FALSE)
     if (readOnline) {
-      if (!silent) message (" online.", appendLF = FALSE)
+      if (!silent) message(" online.", appendLF = FALSE)
       theData.dt <- readRDS(gzcon(url(strMyOnlineRDS)))
     } else {
-        if (!silent) message(" local.", appendLF = FALSE)
-          theData.dt <- readRDS(strLocalRDS)
+      if (!silent) message(" local.", appendLF = FALSE)
+      theData.dt <- readRDS(strLocalRDS)
     }
     if (!silent) message(sprintf(" Done: Timestamp %s",
                          theData.dt$timestamp[1]))
@@ -98,15 +101,15 @@ dl_wid_data <- function(silent = FALSE, cached = FALSE, readOnline = FALSE,
 
   if (!cached) {
     if (!readOnline) {
-      stop ("This isn't available, and shouldn't be needed anyway.")
+      stop("This isn't available - I have no CSV - but shouldn't be needed anyway.")
       if (!silent) message("Local disk version of ", strDataName,
                            " data", appendLF = FALSE)
       data_raw <- read.csv(strLocalVersion,
                            stringsAsFactors = FALSE,
                            na.strings = myNAstrings)
     } else {
-      if (!silent) message ("Downloading ", strDataName, " data...",
-                            appendLF = FALSE)
+      if (!silent) message("Downloading ", strDataName, " data...",
+                           appendLF = FALSE)
 # Distributional data
       for (jIter in 1:length(percNames$uP)) { 
         data_rw0 <- download_wid(
@@ -169,7 +172,9 @@ dl_wid_data <- function(silent = FALSE, cached = FALSE, readOnline = FALSE,
            if (!silent) message ("Changing ", oldName, " to ", newName)
 #  Can't use %>% rename() here as newName as rename thinks I'm
 #  naming the column newName rather than the value of newName
-          names(data_agg)[names(data_agg) == oldName] <- newName
+#          names(data_agg)[names(data_agg) == oldName] <- newName
+          data_agg <- data_agg %>%
+            setnames(old = oldName, new = newName)
         }
 #
         data_raw <- merge(data_raw, data_agg,
@@ -177,8 +182,13 @@ dl_wid_data <- function(silent = FALSE, cached = FALSE, readOnline = FALSE,
         remove(data_agg)
       }
     }
+#  Additional cleanups: rename to politically-neutral "economy";
+#  sort by years, just to be careful 
     theData.dt <- setDT(data_raw) %>%
       rename("economy" = "country") %>%
+      group_by(economy) %>%
+      arrange(year, .by_group = TRUE) %>%
+      ungroup() %>%
       mutate(timestamp = Sys.time())
 
     remove(data_raw)

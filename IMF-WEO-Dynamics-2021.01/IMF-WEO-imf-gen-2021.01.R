@@ -1,11 +1,11 @@
 #!/usr/bin/env R
 # @(#) IMF-WEO-imf-gen-2021.01.R
-# Last-edited: Sun 2021.01.10.1831  -- Danny Quah (me@DannyQuah.com)
+# Last-edited: Mon 2021.04.12.1721  -- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Revision History:
 #  % Fri 2021.01.01.1836  -- Danny Quah (me@DannyQuah.com)
 #    First draft: R script to work with IMF data, WEO piecing together
-#    from genral IMF databases
+#    from general IMF databases
 # ----------------------------------------------------------------
 library(RCurl)
 library(data.table)
