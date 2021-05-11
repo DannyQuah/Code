@@ -1,18 +1,23 @@
 # @(#) utilfuncs.R
-# Last-edited: Sun 2021.04.25.2106 -- Danny Quah (me@DannyQuah.com)
+# Last-edited: Mon 2021.05.03.1251 -- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Revision History:
 #  % Sat 2021.02.20.1935 -- Danny Quah (me@DannyQuah.com)
-#    Utility functions. Output changes and rates of increase
+#    Utility functions. Calculate and Output
 # ----------------------------------------------------------------
 
 # ----------------------------------------------------------------
-crossShow <- function(widData.dt, exclEcons, timeSpan) {
+crossShow <- function(widData.dt, lablEcons, exclEcons, timeSpan) {
 # For cross section of economies, indicators together with
 # B50c growth
+# If the max of mltB50c and mltIneqQ falls below currDropThresh
+# (I suggest 25%) drop that economy. This will happen pretty much
+# only if that economy collapses against the US dollar or Euro or
+# whichever international currency we're using
 # ----------------------------------------------------------------
-
+  currDropThresh <- 0.25
   timeLength <- max(timeSpan) - min(timeSpan)
+  timeLabel  <- paste0(min(timeSpan), ":", max(timeSpan))
   indics.dt <- widData.dt %>%
     filter(year %in% timeSpan) %>%
     filter(!(economy %in% exclEcons)) %>%
@@ -24,8 +29,61 @@ crossShow <- function(widData.dt, exclEcons, timeSpan) {
               mltB50c  = exp((grrB50c/100) * timeLength), 
               locIneqQ = median(ineqQ), 
               grrIneqQ = longGrowth(ineqQ, year),
-              mltIneQ  = exp((grrIneqQ/100) * timeLength) 
-             )
+              mltIneqQ = exp((grrIneqQ/100) * timeLength) 
+             ) %>%
+    ungroup()
+
+  theSumm.dt <- theSumm.dt %>%
+    filter((mltB50c >= currDropThresh) | (mltIneqQ >= currDropThresh))
+
+  pltLabel <- paste0(timeLabel,
+                     " When the bottom 50% rise, so too inequality")
+  myPlot <- theSumm.dt %>%
+    ggplot(., aes(x=mltB50c, y=mltIneqQ)) +
+    labs(x="aB50c-X", y="ineqQ-X", title=pltLabel) +
+    geom_point(color="black", size=1.5) +
+    geom_label_repel(data =
+                     subset(theSumm.dt, economy %in% lablEcons),
+                     aes(label=economy),
+                     box.padding = unit(2.0, "lines"),
+                     point.padding = unit(0.35, "lines"),
+                     label.padding = unit(0.25, "lines"),
+                     arrow = arrow(length=unit(0.25,"cm"),
+                                   ends="last", type="closed"
+                                   ),
+                     segment.color = 'grey10',
+                     segment.size = 0.5,
+                     direction = "both"
+                     ) +
+    geom_smooth(method=loess) +
+    theme_economist(base_size=14)
+  print(myPlot)
+
+  theSumm.dt <- theSumm.dt %>%
+    mutate(mltIneqQfit = predict(loess(mltIneqQ ~ mltB50c)))
+
+  pltLabel <-paste0(timeLabel,
+                    " Residual inequality against bottom 50% income growth")
+  myPlot <- theSumm.dt %>%
+    ggplot(., aes(x=mltB50c, y=mltIneqQ-mltIneqQfit)) +
+    labs(x="aB50c-X", y="Residual ineqQ-X", title=pltLabel) +
+    geom_point(color="black", size=1.5) +
+    geom_label_repel(data =
+                     subset(theSumm.dt, economy %in% lablEcons),
+                     aes(label=economy),
+                     box.padding = unit(2.0, "lines"),
+                     point.padding = unit(0.35, "lines"),
+                     label.padding = unit(0.25, "lines"),
+                     arrow = arrow(length=unit(0.25,"cm"),
+                                   ends="last", type="closed"
+                                   ),
+                     segment.color = 'grey10',
+                     segment.size = 0.5,
+                     direction = "both"
+                     ) +
+    theme_economist(base_size=14)
+  print(myPlot)
+
 
   return(theSumm.dt)
 # end crossShow
@@ -51,10 +109,13 @@ longGrowth <- function(theValues, theYears) {
 
 
 # ----------------------------------------------------------------
-summaryShow <- function(widData.dt, useEconomy, useCurr, useYears) {
+summaryShow <- function(widData.dt, useEconomy, useCurr, useYears,
+                        graphIt) {
 # For useEconomy, graph Inequality, B50; show summary statistics
 # ----------------------------------------------------------------
-#  graphIneqB50(widData.dt, useEconomy, useCurr)
+  if (graphIt) {
+    graphIneqB50(widData.dt, useEconomy, useCurr)
+  }
 
   theIndics.dt <- widData.dt %>%
     filter(economy == useEconomy) %>% filter(year %in% useYears) %>%
@@ -140,7 +201,7 @@ regionList <- function(selectRegion, widData.dt) {
   subntRegions <- 2
 
   useData.dt <- widData.dt %>% group_by(economy) %>%
-    slice(1) %>% select(economy)
+    slice(1) %>% select(economy) %>% ungroup()
   if (selectRegion == worldRegions) {
     useData.dt <- useData.dt %>% filter(grepl('-MER', economy))
     theNamesStr <- c("QB", "QD", "QE", "QF", "QJ",

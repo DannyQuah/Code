@@ -1,6 +1,6 @@
 #!/usr/bin/env R
 # @(#) inequality-mobility-2021.02.R
-# Last-edited: Sun 2021.04.25.2038 -- Danny Quah (me@DannyQuah.com)
+# Last-edited: Tue 2021.05.11.1226 -- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Revision History:
 #  % Fri 2021.02.12.1733  -- Danny Quah (me@DannyQuah.com)
@@ -11,6 +11,7 @@ library(data.table)
 library(countrycode)
 library(ggplot2)
 library(ggthemes)
+library(ggrepel)
 library(tidyverse)
 library(lubridate)
 ## remotes::install_github("WIDworld/wid-r-tool") 
@@ -44,7 +45,7 @@ currUse.dt <- data.table(
   thisCurr = c(inLCU, inUSD, inEUR),
   nameCurr = c("LCU", "USD", "EUR")
                         )
-theCurr  <- 1 # Choose index into currUse.dt // 1 - LCU, 2 - USD, ...
+theCurr  <- 2 # Choose index into currUse.dt // 1 - LCU, 2 - USD, ...
 useCurr  <- currUse.dt$thisCurr[theCurr]
 nameCurr <- currUse.dt$nameCurr[theCurr]
 vrbCurr  <- theWIDdata.dt[[useCurr]]
@@ -61,19 +62,32 @@ theWIDdata.dt <- theWIDdata.dt %>%
 
 # Selected economies
 myEconomies <- c("SG", "US", "CN")
+graphThem   <- TRUE
 for (theEconomy in myEconomies) {
-  summaryShow(theWIDdata.dt, theEconomy, currAxis, theYears)
+  summaryShow(theWIDdata.dt, theEconomy, currAxis, theYears, graphThem)
 }
 
 worldRegions <- 1
 subntRegions <- 2
+# Exceptional economies to exclude
+# IQ - Iraq
+# KS - ?
+# TM - Turkmenistan
+# VE - USD exchange rate goes through the roof; don't use
+#      if theCurr points to USD. Trap this and others in crossShow()
+xcptEconomies <- c("IQ", "KS", "TM")
 exclEconomies <- c(regionList(subntRegions, theWIDdata.dt),
-                   regionList(worldRegions, theWIDdata.dt)
+                   regionList(worldRegions, theWIDdata.dt),
+                   xcptEconomies
                   )
+labelEconomies <- c("SG", "US", "CN", "NO",
+                    "SV", "TT", "NE", "BF", "EE", "LV", "TH",
+                    "BG", "AM", "LT")
 
 # Cross section of economies
-theTimeSpan <- c(1980:2019)
-xSect.dt <- crossShow(theWIDdata.dt, exclEconomies, theTimeSpan)
+theTimeSpan <- c(2000:2019)
+xSect.dt <- crossShow(theWIDdata.dt, labelEconomies,
+                      exclEconomies, theTimeSpan)
 
 # Just additional checks below; no need to run each time
 #
