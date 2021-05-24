@@ -1,6 +1,6 @@
 #!/usr/bin/env R
 # @(#) dl-imf-weo-aggrts.R
-# Last-edited: Sat 2021.04.24.1817 -- Danny Quah (me@DannyQuah.com)
+# Last-edited: Sun 2021.05.23.1758 -- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Returns list of objects:
 #  Econ Groupings - myEconGrpsRefCodes
@@ -22,13 +22,13 @@
 #' @examples
 #' tbd
 #' @export
-dlIMFweoAggrts <- function(WEOcurrAggrts, silent = FALSE,
-                           cached = FALSE, readOnline = FALSE) {
-  if (length(silent) > 1 || !is.logical(silent)) stop(
-    "'silent' has to be a single logical value."
-  )
+dlIMFweoAggrts <- function(WEOcurrAggrts, cached = FALSE,
+                           readOnline = FALSE, silent = FALSE) {
   if (length(cached) > 1 || !is.logical(cached)) stop(
     "'cached' has to be a single logical value."
+  )
+  if (length(silent) > 1 || !is.logical(silent)) stop(
+    "'silent' has to be a single logical value."
   )
 # Reminders // Notes
 # My call conventions given in World-Economies-2021.01.R
@@ -50,7 +50,7 @@ dlIMFweoAggrts <- function(WEOcurrAggrts, silent = FALSE,
 # (The unofficial URL, e.g.,
 # https://www.imf.org/-/media/Files/Publications/WEO/WEO-Database/2021/WEOApr2021all.xls
 # starts an immediate download rather than online display.)
-  strDataAggrtsName  <- "IMF WEO Aggregates Database"
+  strDataName  <- "IMF WEO Aggregates Database"
   myNAstrings        <- c("n/a", "--", "")
   myDataCloudHeader  <- "https://raw.githubusercontent.com/DannyQuah/Data-Cloud/main/"
   WEOcurrAggrtsRDS   <- paste0(WEOcurrAggrts, ".RDS")
@@ -70,7 +70,7 @@ dlIMFweoAggrts <- function(WEOcurrAggrts, silent = FALSE,
 #  strOnlineCache <- "https://raw.githubusercontent.com/...
 
   if (cached) {
-    if (!silent) message("Cached version of ", strDataAggrtsName, " data",
+    if (!silent) message("Cached version of ", strDataName, " data",
                           appendLF = FALSE)
     if (readOnline) {
       if (!silent) message(" online.", appendLF = FALSE)
@@ -79,9 +79,7 @@ dlIMFweoAggrts <- function(WEOcurrAggrts, silent = FALSE,
       if (!silent) message(" local.", appendLF = FALSE)
       myWEOaggrts <- readRDS(strLocalRDS)
     }
-    myWEOeconGrps.df <- myWEOaggrts$myWEOeconGrps.df
-    if (!silent) message(sprintf(" Done: Timestamp %s",
-                                 myWEOeconGrps.df$timestamp[1]))
+    myWEOeconGrps.dt <- myWEOaggrts$myWEOeconGrps.dt
   }
   if (!cached) {
     if (!readOnline) {
@@ -90,7 +88,7 @@ dlIMFweoAggrts <- function(WEOcurrAggrts, silent = FALSE,
         read.csv(strLocalCSV, sep = ",",
                  stringsAsFactors = FALSE, na.strings = myNAstrings)
     } else {
-      if (!silent) message("Downloading ", strDataAggrtsName, " data...",
+      if (!silent) message("Downloading ", strDataName, " data...",
                            appendLF = FALSE)
       myWEO.url <- getURL(paste0(myDataCloud.Header,
                                  "IMF-WEO/WEO-Current-Aggrts.csv"))
@@ -157,6 +155,11 @@ dlIMFweoAggrts <- function(WEOcurrAggrts, silent = FALSE,
                         myEconGrpsNamesCodes = myEconGrpsNamesCodes)
     saveRDS(myWEOaggrts, strLocalRDS)
   }
+
+  if (!silent) message(sprintf(" Done: Timestamp %s",
+                               myWEOeconGrps.dt$timestamp[1]))
+  if (!silent) message("Done downloading ", strDataName, " data\n")
+
   return(myWEOaggrts)
 }
 

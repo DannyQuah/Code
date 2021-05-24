@@ -1,5 +1,5 @@
 # @(#) utilfuncs.R
-# Last-edited: Mon 2021.05.03.1251 -- Danny Quah (me@DannyQuah.com)
+# Last-edited: Sun 2021.05.23.1256 -- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Revision History:
 #  % Sat 2021.02.20.1935 -- Danny Quah (me@DannyQuah.com)
@@ -8,8 +8,8 @@
 
 # ----------------------------------------------------------------
 crossShow <- function(widData.dt, lablEcons, exclEcons, timeSpan) {
-# For cross section of economies, indicators together with
-# B50c growth
+# For cross section of economies, plot indicators together with
+# B50c growth. Returns the summary datatable
 # If the max of mltB50c and mltIneqQ falls below currDropThresh
 # (I suggest 25%) drop that economy. This will happen pretty much
 # only if that economy collapses against the US dollar or Euro or
@@ -24,7 +24,7 @@ crossShow <- function(widData.dt, lablEcons, exclEcons, timeSpan) {
     select(economy, year, avgB50c, ineqQ)
   theSumm.dt <- indics.dt %>%
     group_by(economy) %>% 
-    summarise(locB50c  = median(avgB50c),
+    summarize(locB50c  = median(avgB50c),
               grrB50c  = longGrowth(avgB50c, year),
               mltB50c  = exp((grrB50c/100) * timeLength), 
               locIneqQ = median(ineqQ), 
@@ -45,18 +45,17 @@ crossShow <- function(widData.dt, lablEcons, exclEcons, timeSpan) {
     geom_label_repel(data =
                      subset(theSumm.dt, economy %in% lablEcons),
                      aes(label=economy),
-                     box.padding = unit(2.0, "lines"),
-                     point.padding = unit(0.35, "lines"),
-                     label.padding = unit(0.25, "lines"),
-                     arrow = arrow(length=unit(0.25,"cm"),
-                                   ends="last", type="closed"
-                                   ),
-                     segment.color = 'grey10',
-                     segment.size = 0.5,
-                     direction = "both"
+                     box.padding=unit(2.0, "lines"),
+                     point.padding=unit(0.35, "lines"),
+                     label.padding=unit(0.25, "lines"),
+                     arrow=arrow(length=unit(0.25, "cm"),
+                                 ends="last", type="closed"),
+                     segment.color="grey10",
+                     segment.size=0.5,
+                     direction="both"
                      ) +
     geom_smooth(method=loess) +
-    theme_economist(base_size=14)
+    theme_economist(base_size=13)
   print(myPlot)
 
   theSumm.dt <- theSumm.dt %>%
@@ -71,19 +70,17 @@ crossShow <- function(widData.dt, lablEcons, exclEcons, timeSpan) {
     geom_label_repel(data =
                      subset(theSumm.dt, economy %in% lablEcons),
                      aes(label=economy),
-                     box.padding = unit(2.0, "lines"),
-                     point.padding = unit(0.35, "lines"),
-                     label.padding = unit(0.25, "lines"),
-                     arrow = arrow(length=unit(0.25,"cm"),
-                                   ends="last", type="closed"
-                                   ),
-                     segment.color = 'grey10',
-                     segment.size = 0.5,
-                     direction = "both"
+                     box.padding=unit(2.0, "lines"),
+                     point.padding=unit(0.35, "lines"),
+                     label.padding=unit(0.25, "lines"),
+                     arrow=arrow(length=unit(0.25, "cm"),
+                                 ends="last", type="closed"),
+                     segment.color="grey10",
+                     segment.size=0.5,
+                     direction="both"
                      ) +
     theme_economist(base_size=14)
   print(myPlot)
-
 
   return(theSumm.dt)
 # end crossShow

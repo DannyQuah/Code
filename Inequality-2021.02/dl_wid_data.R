@@ -1,5 +1,5 @@
 # @(#) dl_wid_data.R // World Inequality Database
-# Last-edited: Sat 2021.04.24.1855 -- Danny Quah (me@DannyQuah.com)
+# Last-edited: Mon 2021.05.17.1656 -- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Revision History:
 #  % Fri 2021.02.12.1817 -- Danny Quah (me@DannyQuah.com)
@@ -11,6 +11,9 @@
 #' way to slam together the datatables
 #' Source information at
 #' (\url{https://github.com/WIDworld/wid-r-tool/tree/master/}).
+#' @param silent Whether the function should send status messages to
+#'     console. Informative as downloading will take some time.
+#'     Defaults to \code{FALSE}.
 #' @param cached Whether to download the cached version of the data
 #'     from my own GitHub repo instead of retrieving data from the
 #'     authorative source. Downloading the cached version is faster.
