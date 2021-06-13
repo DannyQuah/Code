@@ -1,6 +1,6 @@
 #!/usr/bin/env R
 # @(#) IMF-WEO-Dynamics-2021.01.R
-# Last-edited: Sat 2021.05.22.1708  -- Danny Quah (me@DannyQuah.com)
+# Last-edited: Sat 2021.06.05.0527  -- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Revision History:
 #  % Fri 2021.01.01.1836  -- Danny Quah (me@DannyQuah.com)
@@ -23,12 +23,12 @@ source("./dl-imf-weo-indivs.R", echo=FALSE)
 ################################################################
 ## Get in the data #############################################
 ################################################################
-myWEOaggrts <- dlIMFweoAggrts(WEOcurrAggrts="WEOApr2021alla",
-                              cached=TRUE, readOnline=FALSE,
-                              silent=FALSE)
-myWEOindivs <- dlIMFweoIndivs(WEOcurrIndivs="WEOApr2021all",
-                              cached=TRUE, readOnline=FALSE,
-                              silent=FALSE)
+myWEOaggrts <- dlIMFweoAggrts(blCached=TRUE, readOnline=FALSE,
+                              silent=FALSE,
+                              WEOcurrAggrts="WEOApr2021alla")
+myWEOindivs <- dlIMFweoIndivs(blCached=TRUE, readOnline=FALSE,
+                              silent=FALSE,
+                              WEOcurrIndivs="WEOApr2021all")
 
 myWEOeconGrps.dt     <- myWEOaggrts$myWEOeconGrps.dt
 myEconGrpsNamesCodes <- myWEOaggrts$myEconGrpsNamesCodes

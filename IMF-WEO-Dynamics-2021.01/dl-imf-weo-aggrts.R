@@ -1,6 +1,6 @@
 #!/usr/bin/env R
 # @(#) dl-imf-weo-aggrts.R
-# Last-edited: Sun 2021.05.23.1758 -- Danny Quah (me@DannyQuah.com)
+# Last-edited: Sun 2021.06.06.2248 -- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Returns list of objects:
 #  Econ Groupings - myEconGrpsRefCodes
@@ -22,13 +22,13 @@
 #' @examples
 #' tbd
 #' @export
-dlIMFweoAggrts <- function(WEOcurrAggrts, cached = FALSE,
-                           readOnline = FALSE, silent = FALSE) {
-  if (length(cached) > 1 || !is.logical(cached)) stop(
-    "'cached' has to be a single logical value."
+dlIMFweoAggrts <- function(blCached = FALSE, blReadOnline = FALSE,
+                           blSilent = FALSE, WEOcurrAggrts) {
+  if (length(blCached) > 1 || !is.logical(blCached)) stop(
+    "'blCached' has to be a single logical value."
   )
-  if (length(silent) > 1 || !is.logical(silent)) stop(
-    "'silent' has to be a single logical value."
+  if (length(blSilent) > 1 || !is.logical(blSilent)) stop(
+    "'blSilent' has to be a single logical value."
   )
 # Reminders // Notes
 # My call conventions given in World-Economies-2021.01.R
@@ -69,26 +69,26 @@ dlIMFweoAggrts <- function(WEOcurrAggrts, cached = FALSE,
     paste0("https://raw.githubusercontent.com/DannyQuah/Data-Cloud/master/IMF-WEO/", WEOcurrAggrtsRDS)
 #  strOnlineCache <- "https://raw.githubusercontent.com/...
 
-  if (cached) {
-    if (!silent) message("Cached version of ", strDataName, " data",
+  if (blCached) {
+    if (!blSilent) message("Cached version of ", strDataName, " data",
                           appendLF = FALSE)
-    if (readOnline) {
-      if (!silent) message(" online.", appendLF = FALSE)
+    if (blReadOnline) {
+      if (!blSilent) message(" online.", appendLF=TRUE)
       myWEOaggrts <- readRDS(gzcon(url(strMyOnlineRDS)))
     } else {
-      if (!silent) message(" local.", appendLF = FALSE)
+      if (!blSilent) message(" local.", appendLF =TRUE)
       myWEOaggrts <- readRDS(strLocalRDS)
     }
     myWEOeconGrps.dt <- myWEOaggrts$myWEOeconGrps.dt
   }
-  if (!cached) {
-    if (!readOnline) {
+  if (!blCached) {
+    if (!blReadOnline) {
       # stop("This isn't available, and shouldn't be needed anyway.")
       myWEOeconGrps.df <-
         read.csv(strLocalCSV, sep = ",",
                  stringsAsFactors = FALSE, na.strings = myNAstrings)
     } else {
-      if (!silent) message("Downloading ", strDataName, " data...",
+      if (!blSilent) message("Downloading ", strDataName, " data...",
                            appendLF = FALSE)
       myWEO.url <- getURL(paste0(myDataCloud.Header,
                                  "IMF-WEO/WEO-Current-Aggrts.csv"))
@@ -156,9 +156,9 @@ dlIMFweoAggrts <- function(WEOcurrAggrts, cached = FALSE,
     saveRDS(myWEOaggrts, strLocalRDS)
   }
 
-  if (!silent) message(sprintf(" Done: Timestamp %s",
+  if (!blSilent) message(sprintf("Done: Timestamp %s",
                                myWEOeconGrps.dt$timestamp[1]))
-  if (!silent) message("Done downloading ", strDataName, " data\n")
+  if (!blSilent) message("Done downloading ", strDataName, " data\n")
 
   return(myWEOaggrts)
 }

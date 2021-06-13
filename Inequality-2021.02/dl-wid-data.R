@@ -1,5 +1,5 @@
 # @(#) dl_wid_data.R // World Inequality Database
-# Last-edited: Mon 2021.05.17.1656 -- Danny Quah (me@DannyQuah.com)
+# Last-edited: Sun 2021.06.06.2248 -- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Revision History:
 #  % Fri 2021.02.12.1817 -- Danny Quah (me@DannyQuah.com)
@@ -11,14 +11,14 @@
 #' way to slam together the datatables
 #' Source information at
 #' (\url{https://github.com/WIDworld/wid-r-tool/tree/master/}).
-#' @param silent Whether the function should send status messages to
+#' @param blSilent Whether the function should send status messages to
 #'     console. Informative as downloading will take some time.
 #'     Defaults to \code{FALSE}.
-#' @param cached Whether to download the cached version of the data
+#' @param blCached Whether to download the cached version of the data
 #'     from my own GitHub repo instead of retrieving data from the
 #'     authorative source. Downloading the cached version is faster.
 #'     Defaults to \code{FALSE}.
-#' @param readOnline Whether to read online or from local disk,
+#' @param blReadOnline Whether to read online or from local disk,
 #'     to save network bandwidth. Defaults to \code{FALSE}.
 #' @return Data table
 #'
@@ -26,13 +26,14 @@
 #' tbd
 #'
 #' @export
-dl_wid_data <- function(silent = FALSE, cached = FALSE,
-  readOnline = FALSE, theAreas = "all", theYears = "all") {
-  if (length(silent) > 1 || !is.logical(silent)) stop(
-    "'silent' has to be a single logical value."
+dl_wid_data <- function(blCached = FALSE, blReadOnline = FALSE,
+                        blSilent = FALSE, theAreas = "all",
+                        theYears = "all") {
+  if (length(blSilent) > 1 || !is.logical(blSilent)) stop(
+    "'blSilent' has to be a single logical value."
   )
-  if (length(cached) > 1 || !is.logical(cached)) stop(
-    "'cached' has to be a single logical value."
+  if (length(blCached) > 1 || !is.logical(blCached)) stop(
+    "'blCached' has to be a single logical value."
   )
 
 # Reminders // Notes
@@ -88,30 +89,30 @@ dl_wid_data <- function(silent = FALSE, cached = FALSE,
   strOnlineCache <- "https://raw.githubusercontent.com/widWORLD/data/master/public/data/widWORLD.csv"
   myNAstrings <- c("n/a", "--", "")
 
-  if (cached) {
-    if (!silent) message("Cached version of ", strDataName, " data",
+  if (blCached) {
+    if (!blSilent) message("Cached version of ", strDataName, " data",
                          appendLF = FALSE)
-    if (readOnline) {
-      if (!silent) message(" online.", appendLF = FALSE)
+    if (blReadOnline) {
+      if (!blSilent) message(" online.", appendLF = TRUE)
       theData.dt <- readRDS(gzcon(url(strMyOnlineRDS)))
     } else {
-      if (!silent) message(" local.", appendLF = FALSE)
+      if (!blSilent) message(" local.", appendLF = TRUE)
       theData.dt <- readRDS(strLocalRDS)
     }
-    if (!silent) message(sprintf(" Done: Timestamp %s",
+    if (!blSilent) message(sprintf("Done: Timestamp %s",
                          theData.dt$timestamp[1]))
   }
 
-  if (!cached) {
-    if (!readOnline) {
+  if (!blCached) {
+    if (!blReadOnline) {
       stop("This isn't available - I have no CSV - but shouldn't be needed anyway.")
-      if (!silent) message("Local disk version of ", strDataName,
+      if (!blSilent) message("Local disk version of ", strDataName,
                            " data", appendLF = FALSE)
       data_raw <- read.csv(strLocalVersion,
                            stringsAsFactors = FALSE,
                            na.strings = myNAstrings)
     } else {
-      if (!silent) message("Downloading ", strDataName, " data...",
+      if (!blSilent) message("Downloading ", strDataName, " data...",
                            appendLF = FALSE)
 # Distributional data
       for (jIter in 1:length(percNames$uP)) { 
@@ -134,7 +135,7 @@ dl_wid_data <- function(silent = FALSE, cached = FALSE,
                            percNames$nP[jIter])
           oldName <- paste0(distNames$indicDistr[jName],
                             theAges20P, thePopEqSplit)
-          if (!silent) message ("Changing ", oldName, " at ",
+          if (!blSilent) message ("Changing ", oldName, " at ",
                                 percNames$uP[jIter], " to ", newName)
 #  Can't use %>% rename() here as newName as rename thinks I'm
 #  naming the column newName rather than the value of newName
@@ -172,7 +173,7 @@ dl_wid_data <- function(silent = FALSE, cached = FALSE,
           newName <- aggrNames$namesAggr[jName]
           oldName <- paste0(aggrNames$indicAggr[jName], theAgesAll,
                              thePopIndivs)
-           if (!silent) message ("Changing ", oldName, " to ", newName)
+           if (!blSilent) message ("Changing ", oldName, " to ", newName)
 #  Can't use %>% rename() here as newName as rename thinks I'm
 #  naming the column newName rather than the value of newName
 #          names(data_agg)[names(data_agg) == oldName] <- newName
@@ -198,7 +199,7 @@ dl_wid_data <- function(silent = FALSE, cached = FALSE,
     saveRDS(theData.dt, strLocalRDS)
   }
 
-  if (!silent) message("Done downloading ", strDataName, " data\n")
+  if (!blSilent) message("Done downloading ", strDataName, " data\n")
 
   # Clean up 
   remove (myNAstrings, strOnlineCache, strLocalVersion,

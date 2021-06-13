@@ -1,6 +1,6 @@
 #!/usr/bin/env R
 # @(#) inequality-mobility-2021.02.R
-# Last-edited: Tue 2021.05.11.1226 -- Danny Quah (me@DannyQuah.com)
+# Last-edited: Sat 2021.06.05.0525 -- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Revision History:
 #  % Fri 2021.02.12.1733  -- Danny Quah (me@DannyQuah.com)
@@ -16,7 +16,7 @@ library(tidyverse)
 library(lubridate)
 ## remotes::install_github("WIDworld/wid-r-tool") 
 library(wid)
-source("./dl_wid_data.R", echo = FALSE)
+source("./dl-wid-data.R", echo = FALSE)
 source("./utilfuncs.R", echo = FALSE)
 
 # In dl_wid_data() call, these "use*" arguments are used only 
@@ -27,11 +27,12 @@ useAreas      <- "all"
 # useAreas      <- c("CN", "SG", "US")
 useYears      <- 1980:2019
 
-theWIDdata.dt <- dl_wid_data(silent = FALSE, cached = TRUE,
-  readOnline = FALSE, theAreas = useAreas, theYears = useYears)
+theWIDdata.dt <- dl_wid_data(blSilent=FALSE, blCached=TRUE,
+                             blReadOnline=FALSE, theAreas=useAreas,
+                             theYears=useYears)
 
 # For consistent usage, add a variable that is all 1's
-theWIDdata.dt <- theWIDdata.dt %>% mutate(exchRateLCU = 1.0)
+theWIDdata.dt <- theWIDdata.dt %>% mutate(exchRateLCU=1.0)
 
 # Choose one of the following to determine currency denomination to use.
 # Because the underlying data are already LCU in constant prices,
