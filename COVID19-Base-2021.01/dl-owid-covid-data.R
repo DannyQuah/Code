@@ -1,5 +1,5 @@
 # @(#) dl-owid-covid-data.R // Our World in Data
-# Last-edited: Sun 2021.06.06.2249 -- Danny Quah (me@DannyQuah.com)
+# Last-edited: Sun 2021.06.13.1851 -- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Revision History:
 #  % Fri 2021.02.12.1955 -- Danny Quah (me@DannyQuah.com)
@@ -44,11 +44,11 @@ dl_owid_covid_data <- function(blCached = FALSE, blReadOnline = FALSE,
 # strLocalVersion to point to the appropriate locations on
 # your local drive
   strLocalRDS <- file.path("~", "0", "Light", "1", "j", "Data-Cloud",
-                           "COVID", "owid_covid_data.RDS")
+                           "COVID", "owid-covid-data.RDS")
   strLocalVersion <- file.path("~", "0", "Light", "1", "j", "Data-Cloud",
                                "COVID", "owid-covid-data.csv")
 #
-  strMyOnlineRDS <- "https://raw.githubusercontent.com/DannyQuah/Data-Cloud/blob/main/COVID/owid_covid_data.RDS"
+  strMyOnlineRDS <- "https://raw.githubusercontent.com/DannyQuah/Data-Cloud/blob/main/COVID/owid-covid-data.RDS"
   strOnlineCache <- "https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv"
   myNAstrings <- c("n/a", "--", "")
 

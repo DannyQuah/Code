@@ -1,8 +1,11 @@
 #!/usr/bin/env R
 # @(#) covid-base-2021.01.R
-# Last-edited: Sat 2021.06.12.2230  -- Danny Quah (me@DannyQuah.com)
+# Last-edited: Sat 2021.06.19.1629  -- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Revision History:
+#  % Sat 2021.01.30.1630  -- Danny Quah (me@DannyQuah.com)
+## remotes::install_github("joachim-gassen/tidycovid19")
+# library(tidycovid19)
 #  % Sat 2021.01.30.1610  -- Danny Quah (me@DannyQuah.com)
 #    First draft: R script to ...
 # ----------------------------------------------------------------
@@ -12,8 +15,6 @@ library(countrycode)
 library(ggthemes)
 library(ggrepel)
 library(tidyverse)
-## remotes::install_github("joachim-gassen/tidycovid19")
-# library(tidycovid19)
 library(lubridate)
 library(scales)
 library(corrplot)
