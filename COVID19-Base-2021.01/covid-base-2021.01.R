@@ -1,6 +1,6 @@
 #!/usr/bin/env R
 # @(#) covid-base-2021.01.R
-# Last-edited: Sat 2021.06.19.1629  -- Danny Quah (me@DannyQuah.com)
+# Last-edited: Fri 2021.06.25.1701  -- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Revision History:
 #  % Sat 2021.01.30.1630  -- Danny Quah (me@DannyQuah.com)
@@ -9,6 +9,7 @@
 #  % Sat 2021.01.30.1610  -- Danny Quah (me@DannyQuah.com)
 #    First draft: R script to ...
 # ----------------------------------------------------------------
+library(wid)
 library(RCurl)
 library(data.table)
 library(countrycode)

@@ -1,5 +1,5 @@
 # @(#) dl_wid_data.R // World Inequality Database
-# Last-edited: Sun 2021.06.06.2248 -- Danny Quah (me@DannyQuah.com)
+# Last-edited: Fri 2021.06.25.1645 -- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Revision History:
 #  % Fri 2021.02.12.1817 -- Danny Quah (me@DannyQuah.com)
@@ -81,11 +81,11 @@ dl_wid_data <- function(blCached = FALSE, blReadOnline = FALSE,
 # strLocalVersion to point to the appropriate locations on
 # your local drive
   strLocalRDS <- file.path("~", "0", "Light", "1", "j", "Data-Cloud",
-                           "WID", "wid_data.RDS")
+                           "WID", "wid-data.RDS")
   strLocalVersion <- file.path("~", "0", "Light", "1", "j", "Data-Cloud",
-                               "WID", "wid_data.csv")
+                               "WID", "wid-data.csv")
 #
-  strMyOnlineRDS <- "https://raw.githubusercontent.com/DannyQuah/Data-Cloud/master/WID/wid_data.RDS"
+  strMyOnlineRDS <- "https://raw.githubusercontent.com/DannyQuah/Data-Cloud/master/WID/wid-data.RDS"
   strOnlineCache <- "https://raw.githubusercontent.com/widWORLD/data/master/public/data/widWORLD.csv"
   myNAstrings <- c("n/a", "--", "")
 
