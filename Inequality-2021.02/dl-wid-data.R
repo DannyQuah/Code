@@ -1,5 +1,5 @@
 # @(#) dl_wid_data.R // World Inequality Database
-# Last-edited: Fri 2021.06.25.1645 -- Danny Quah (me@DannyQuah.com)
+# Last-edited: Thu 2021.07.01.1246 -- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Revision History:
 #  % Fri 2021.02.12.1817 -- Danny Quah (me@DannyQuah.com)
@@ -11,22 +11,22 @@
 #' way to slam together the datatables
 #' Source information at
 #' (\url{https://github.com/WIDworld/wid-r-tool/tree/master/}).
-#' @param blSilent Whether the function should send status messages to
-#'     console. Informative as downloading will take some time.
-#'     Defaults to \code{FALSE}.
 #' @param blCached Whether to download the cached version of the data
 #'     from my own GitHub repo instead of retrieving data from the
 #'     authorative source. Downloading the cached version is faster.
-#'     Defaults to \code{FALSE}.
+#'     Defaults to \code{TRUE}.
 #' @param blReadOnline Whether to read online or from local disk,
 #'     to save network bandwidth. Defaults to \code{FALSE}.
+#' @param blSilent Whether the function should send status messages to
+#'     console. Informative as downloading will take some time.
+#'     Defaults to \code{FALSE}.
 #' @return Data table
 #'
 #' @examples
 #' tbd
 #'
 #' @export
-dl_wid_data <- function(blCached = FALSE, blReadOnline = FALSE,
+dl_wid_data <- function(blCached = TRUE, blReadOnline = FALSE,
                         blSilent = FALSE, theAreas = "all",
                         theYears = "all") {
   if (length(blSilent) > 1 || !is.logical(blSilent)) stop(

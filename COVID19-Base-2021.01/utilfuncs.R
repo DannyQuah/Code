@@ -1,6 +1,6 @@
 #!/usr/bin/env R
 # @(#) utilfuncs.R
-# Last-edited: Sat 2021.06.12.2225 -- Danny Quah (me@DannyQuah.com)
+# Last-edited: Fri 2021.07.02.2313 -- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Revision History:
 #  % Sat 2021.05.22.1435 -- Danny Quah (me@DannyQuah.com)
@@ -204,6 +204,20 @@ crossShow <- function(theSumm.dt, onlyTheseEcons = NULL,
   useSumm.dt <- useSumm.dt %>%
     mutate(econPerfPred=myPreds)
 
+## No longer need certain constructed variables so trash them here
+  useSumm.dt <- useSumm.dt %>%
+    select(-lCovidPerf)
+
+## Tag the different economies in different identified quadrants
+  useSumm.dt <- useSumm.dt %>%
+    mutate(Quadrant = case_when(
+      (econPerf >= econPerfPred) & (covidPerf >= covidPerfPred) ~ "NE",
+      (econPerf >= econPerfPred) & (covidPerf <  covidPerfPred) ~ "SE",
+      (econPerf <  econPerfPred) & (covidPerf >= covidPerfPred) ~ "NW",
+      (econPerf <  econPerfPred) & (covidPerf <  covidPerfPred) ~ "SW"
+      ) 
+    )
+
   myPlot <- useSumm.dt %>%
     ggplot() +
     aes(x=econPerf, y=covidPerf) +
@@ -292,60 +306,5 @@ showAnnualGraph <- function(theData.dt, theVrbl, theEcons,
 # end of showAnnualGraph
 }
 
-# ----------------------------------------------------------------
-corrSignif <- function(theData.dt,
-                       theMethod="pearson",
-                       theMSL=0.05,
-                       theOrder="original",
-                       blDiag=FALSE,
-                       theType="upper",
-                       theTLsrt=90,
-                       theNmbFont=1,
-                       theNmbCEX=1,
-                       theMargins=c(0.5, 0.5, 0.5, 0.5)) {
-# ----------------------------------------------------------------
-# Compactly show correlation and marginal significance level
-# Modified from
-# https://statsandr.com/blog/correlation-coefficient-and-correlation-test-in-r/
-# ----------------------------------------------------------------
-#  library(corrplot)
-  print(correlation(theData.dt))
-
-  dataMatrix <- as.matrix(theData.dt)
-  corrMatrix <- cor(dataMatrix, method = theMethod)
-#
-# function to build up correlation test matrix
-  cor.mtest <- function(theMatrix, corMethod) {
-    theMatrix <- as.matrix(theMatrix)
-    theNmbCols <- ncol(theMatrix)
-    prbMatrix <- matrix(NA, theNmbCols, theNmbCols)
-    diag(prbMatrix) <- 0
-    for (i in 1:(theNmbCols-1)) {
-      for (j in (i+1):theNmbCols) {
-        tmp <- cor.test(theMatrix[, i], theMatrix[, j], method=corMethod)
-        prbMatrix[i, j] <- prbMatrix[j, i] <- tmp$p.value
-      }
-    }
-    colnames(prbMatrix) <- rownames(prbMatrix) <- colnames(theMatrix)
-    prbMatrix
-  }
-#
-  thePrbMatrix <- cor.mtest(dataMatrix, theMethod)
-  col <- colorRampPalette(c("#BB4444", "#EE9988", "#FFFFFF", "#77AADD", "#4477AA"))
-  corrplot(corrMatrix,
-    method = "color", col = col(200), number.font = theNmbFont,
-    mar = theMargins, number.cex = theNmbCEX,
-    type = theType, order = theOrder,
-    addCoef.col = "black", # add correlation coefficient
-    tl.col = "black", tl.srt = theTLsrt, # rotation of text labels
-    # combine with significance level
-    p.mat = thePrbMatrix, sig.level = theMSL, insig = "blank",
-    # hide correlation coefficients on the diagonal
-    diag = blDiag
-  )
-
-
-# end of corrSignif
-}
 # eof utilfuncs.R
 

@@ -1,5 +1,5 @@
 # @(#) utilfuncs.R
-# Last-edited: Sun 2021.05.23.1256 -- Danny Quah (me@DannyQuah.com)
+# Last-edited: Sat 2021.07.03.0817 -- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Revision History:
 #  % Sat 2021.02.20.1935 -- Danny Quah (me@DannyQuah.com)
@@ -17,19 +17,20 @@ crossShow <- function(widData.dt, lablEcons, exclEcons, timeSpan) {
 # ----------------------------------------------------------------
   currDropThresh <- 0.25
   timeLength <- max(timeSpan) - min(timeSpan)
-  timeLabel  <- paste0(min(timeSpan), ":", max(timeSpan))
+  timeLabel  <- paste0(min(timeSpan), "-", max(timeSpan))
   indics.dt <- widData.dt %>%
-    filter(year %in% timeSpan) %>%
-    filter(!(economy %in% exclEcons)) %>%
-    select(economy, year, avgB50c, ineqQ)
+    filter(theYear %in% timeSpan) %>%
+    filter(!(theISO2c %in% exclEcons)) %>%
+    select(theISO2c, econName, theYear, avgB50c, ineqQ)
   theSumm.dt <- indics.dt %>%
-    group_by(economy) %>% 
-    summarize(locB50c  = median(avgB50c),
-              grrB50c  = longGrowth(avgB50c, year),
-              mltB50c  = exp((grrB50c/100) * timeLength), 
-              locIneqQ = median(ineqQ), 
-              grrIneqQ = longGrowth(ineqQ, year),
-              mltIneqQ = exp((grrIneqQ/100) * timeLength) 
+    group_by(theISO2c) %>% 
+    summarize(econName = first(econName),
+              locB50c  = median(avgB50c),
+              grrB50c  = longGrowth(avgB50c, theYear),
+              mltB50c  = exp((grrB50c/100) * timeLength),
+              locIneqQ = median(ineqQ),
+              grrIneqQ = longGrowth(ineqQ, theYear),
+              mltIneqQ = exp((grrIneqQ/100) * timeLength)
              ) %>%
     ungroup()
 
@@ -40,11 +41,11 @@ crossShow <- function(widData.dt, lablEcons, exclEcons, timeSpan) {
                      " When the bottom 50% rise, so too inequality")
   myPlot <- theSumm.dt %>%
     ggplot(., aes(x=mltB50c, y=mltIneqQ)) +
-    labs(x="aB50c-X", y="ineqQ-X", title=pltLabel) +
+    labs(x="B50c-X", y="ineqQ-X", title=pltLabel) +
     geom_point(color="black", size=1.5) +
     geom_label_repel(data =
-                     subset(theSumm.dt, economy %in% lablEcons),
-                     aes(label=economy),
+                     subset(theSumm.dt, theISO2c %in% lablEcons),
+                     aes(label=theISO2c),
                      box.padding=unit(2.0, "lines"),
                      point.padding=unit(0.35, "lines"),
                      label.padding=unit(0.25, "lines"),
@@ -58,18 +59,19 @@ crossShow <- function(widData.dt, lablEcons, exclEcons, timeSpan) {
     theme_economist(base_size=13)
   print(myPlot)
 
+
   theSumm.dt <- theSumm.dt %>%
     mutate(mltIneqQfit = predict(loess(mltIneqQ ~ mltB50c)))
 
   pltLabel <-paste0(timeLabel,
-                    " Residual inequality against bottom 50% income growth")
+                    " Residual change: inequality and B50")
   myPlot <- theSumm.dt %>%
     ggplot(., aes(x=mltB50c, y=mltIneqQ-mltIneqQfit)) +
-    labs(x="aB50c-X", y="Residual ineqQ-X", title=pltLabel) +
+    labs(x="B50c-X", y="Residual ineqQ-X", title=pltLabel) +
     geom_point(color="black", size=1.5) +
     geom_label_repel(data =
-                     subset(theSumm.dt, economy %in% lablEcons),
-                     aes(label=economy),
+                     subset(theSumm.dt, theISO2c %in% lablEcons),
+                     aes(label=theISO2c),
                      box.padding=unit(2.0, "lines"),
                      point.padding=unit(0.35, "lines"),
                      label.padding=unit(0.25, "lines"),
@@ -82,7 +84,51 @@ crossShow <- function(widData.dt, lablEcons, exclEcons, timeSpan) {
     theme_economist(base_size=14)
   print(myPlot)
 
+  pltLabel <- paste0(timeLabel,
+                     " Does inequality condition the change in B50?")
+  myPlot <- theSumm.dt %>%
+    ggplot(., aes(x=locIneqQ, y=mltB50c)) +
+    labs(x="ineqQ", y="B50c-X", title=pltLabel) +
+    geom_point(color="black", size=1.5) +
+    geom_label_repel(data =
+                     subset(theSumm.dt, theISO2c %in% lablEcons),
+                     aes(label=theISO2c),
+                     box.padding=unit(2.0, "lines"),
+                     point.padding=unit(0.35, "lines"),
+                     label.padding=unit(0.25, "lines"),
+                     arrow=arrow(length=unit(0.25, "cm"),
+                                 ends="last", type="closed"),
+                     segment.color="grey10",
+                     segment.size=0.5,
+                     direction="both"
+                     ) +
+    geom_smooth(method=loess) +
+    theme_economist(base_size=13)
+  print(myPlot)
+
+  pltLabel <- paste0(timeLabel,
+                     " Does inequality condition its rise?")
+  myPlot <- theSumm.dt %>%
+    ggplot(., aes(x=locIneqQ, y=mltIneqQ)) +
+    labs(x="ineqQ", y="ineqQ-X", title=pltLabel) +
+    geom_point(color="black", size=1.5) +
+    geom_label_repel(data =
+                     subset(theSumm.dt, theISO2c %in% lablEcons),
+                     aes(label=theISO2c),
+                     box.padding=unit(2.0, "lines"),
+                     point.padding=unit(0.35, "lines"),
+                     label.padding=unit(0.25, "lines"),
+                     arrow=arrow(length=unit(0.25, "cm"),
+                                 ends="last", type="closed"),
+                     segment.color="grey10",
+                     segment.size=0.5,
+                     direction="both"
+                     ) +
+    geom_smooth(method=loess) +
+    theme_economist(base_size=13)
+  print(myPlot)
   return(theSumm.dt)
+
 # end crossShow
 }
 
@@ -115,7 +161,7 @@ summaryShow <- function(widData.dt, useEconomy, useCurr, useYears,
   }
 
   theIndics.dt <- widData.dt %>%
-    filter(economy == useEconomy) %>% filter(year %in% useYears) %>%
+    filter(theISO2c == useEconomy) %>% filter(theYear %in% useYears) %>%
     select(avgB50c, ineqQ, avgT10c)
   theIndics.v <- theIndics.dt[[1]]
   theOutp.str <- " B50 "
@@ -131,20 +177,29 @@ summaryShow <- function(widData.dt, useEconomy, useCurr, useYears,
 }
 
 # ----------------------------------------------------------------
-showChangeGrowth <- function(useIndics.v, useEconomy, useVrbl.str, useYears) {
-# Display change and rate of change
+showChangeGrowth <- function(useIndics.v, useEconomy, useVrbl.str,
+                             useYears) {
+# Display change ratio and annual rate of change in indicators
 # ----------------------------------------------------------------
-  x1 <- useIndics.v[3]/useIndics.v[1]
-  x2 <- 100*(log(useIndics.v[3]) - log(useIndics.v[1])) / (useYears[3]-useYears[1])
-  x3 <- useIndics.v[3]/useIndics.v[2]
-  x4 <- 100*(log(useIndics.v[3]) - log(useIndics.v[2])) / (useYears[3]-useYears[2])
+  x12 <- useIndics.v[2] / useIndics.v[1]
+  g12 <- 100*(log(useIndics.v[2]) - log(useIndics.v[1])) /
+              (useYears[2] - useYears[1])
+  x23 <- useIndics.v[3] / useIndics.v[2]
+  g23 <- 100*(log(useIndics.v[3]) - log(useIndics.v[2])) /
+              (useYears[3]-useYears[2])
+  x13 <- useIndics.v[3] / useIndics.v[1]
+  g13 <- 100*(log(useIndics.v[3]) - log(useIndics.v[1])) /
+              (useYears[3]-useYears[1])
   message(useEconomy, useVrbl.str,
-    " (", useYears[3], "/", useYears[1], " ",
-    format(round(x1, 2), nsmall=2, width=5), "X",
-    ", annGR ", format(round(x2, 2), nsmall=2), "%)",
-    " (", useYears[3], "/", useYears[2], " ",
-    format(round(x3, 2), nsmall=2, width=5), "X",
-    ", annGR ", format(round(x4, 2), nsmall=2), "%)"
+    " (", useYears[1], "-", useYears[2], " ",
+    format(round(x12, 2), nsmall=2), "X",
+    ", aGR ", format(round(g12, 2), nsmall=2, width=5), "%)",
+    " (", useYears[2], "-", useYears[3], " ",
+    format(round(x23, 2), nsmall=2), "X",
+    ", aGR ", format(round(g23, 2), nsmall=2, width=5), "%)",
+    " (", useYears[1], "-", useYears[3], " ",
+    format(round(x13, 2), nsmall=2), "X",
+    ", aGR ", format(round(g13, 2), nsmall=2, width=5), "%)"
         )
 
 # end showChangeGrowth
@@ -156,24 +211,26 @@ graphIneqB50 <- function(widData.dt, useEconomy, useCurr) {
 # ----------------------------------------------------------------
 # Graph inequality and B50
   myPlot <- widData.dt %>%
-    filter(economy == useEconomy) %>%
-    ggplot(., aes(x = year)) +
-      labs(title = paste0(useEconomy, " - Ineq, B50"),
+    filter(theISO2c == useEconomy) %>%
+    ggplot(., aes(x = theYear)) +
+      labs(title = paste0(useEconomy, " Ineq, B50"),
           y = useCurr) +
       geom_line(aes(y = avgB50c), color = "darkred",
                 linetype = "solid", size = 1.5) +
       geom_line(aes(y = ineqQ), color = "darkblue",
                 linetype = "longdash", size = 1.5) +
+      expand_limits(y = 0) +
       theme_economist(base_size = 14)
   print(myPlot)
 
     # Graph B50
   myPlot <- widData.dt %>%
-      filter(economy == useEconomy) %>%
-      ggplot(., aes(x = year)) +
-        labs(title = paste0(useEconomy, " - B50"), y = useCurr) +
+      filter(theISO2c == useEconomy) %>%
+      ggplot(., aes(x = theYear)) +
+        labs(title = paste0(useEconomy, " B50"), y = useCurr) +
         geom_line(aes(y = avgB50c), color = "darkred",
                   linetype = "solid", size = 1.5) +
+        expand_limits(y = 0) +
         theme_economist(base_size = 14)
   print(myPlot)
 
@@ -197,10 +254,10 @@ regionList <- function(selectRegion, widData.dt) {
   worldRegions <- 1
   subntRegions <- 2
 
-  useData.dt <- widData.dt %>% group_by(economy) %>%
-    slice(1) %>% select(economy) %>% ungroup()
+  useData.dt <- widData.dt %>% group_by(theISO2c) %>%
+    slice(1) %>% select(theISO2c) %>% ungroup()
   if (selectRegion == worldRegions) {
-    useData.dt <- useData.dt %>% filter(grepl('-MER', economy))
+    useData.dt <- useData.dt %>% filter(grepl('-MER', theISO2c))
     theNamesStr <- c("QB", "QD", "QE", "QF", "QJ",
                      "QK", "QM", "QN", "QO", "QP",
                      "QS", "QT", "QU", "QV", "QW",
@@ -209,7 +266,7 @@ regionList <- function(selectRegion, widData.dt) {
                      useData.dt[[1]])
   } else if (selectRegion == subntRegions) {
     useData.dt <- useData.dt %>%
-      filter(grepl('CN-|DE-|US-', economy))
+      filter(grepl('CN-|DE-|US-', theISO2c))
     theNamesStr <- c(useData.dt [[1]])
   } else {
     stop("regionList: unknown selectRegion", selectRegion)
@@ -229,8 +286,8 @@ addChecks <- function(widData.dt, useEconomy, useVrbCurr) {
     mutate(trhT10d  = trhT10 / (1000 * vrbCurr))
 
   widData.dt %>%
-    filter(economy == useEconomy) %>%
-    ggplot(., aes(x = year)) +
+    filter(theISO2c == useEconomy) %>%
+    ggplot(., aes(x = theYear)) +
     geom_line(aes(y = avgB50c), color = "darkred",
               linetype = "solid", size = 1.5) +
     geom_line(aes(y = avgB50d), color = "steelblue",

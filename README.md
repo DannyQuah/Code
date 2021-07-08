@@ -1,6 +1,6 @@
 ---
 fileName: README.md
-# Last-edited: Mon 2021.02.15.1743-- Danny Quah (me@DannyQuah.com)
+# Last-edited: Thu 2021.07.08.1652 -- Danny Quah (me@DannyQuah.com)
 Type: Notes
 Tags: Software
 # Created: Mon 2021.02.15.1734-- Danny Quah (me@DannyQuah.com)
@@ -11,7 +11,7 @@ title: Code README
 
 # Code
 
-My general non-project coding, i.e., coding that is useful across specific writing projects or not yet specialised into a unique project.
+My coding, both that used in specific writing projects and that generally useful to me but not necessarily yet specialised into particular projects
 
 <!---
    Invisible section // README.md

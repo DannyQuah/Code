@@ -1,6 +1,6 @@
 #!/usr/bin/env R
 # @(#) covid-base-2021.01.R
-# Last-edited: Fri 2021.06.25.1701  -- Danny Quah (me@DannyQuah.com)
+# Last-edited: Fri 2021.07.02.2313  -- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Revision History:
 #  % Sat 2021.01.30.1630  -- Danny Quah (me@DannyQuah.com)
@@ -9,6 +9,7 @@
 #  % Sat 2021.01.30.1610  -- Danny Quah (me@DannyQuah.com)
 #    First draft: R script to ...
 # ----------------------------------------------------------------
+## remotes::install_github("WIDworld/wid-r-tool") 
 library(wid)
 library(RCurl)
 library(data.table)
@@ -24,6 +25,8 @@ library(correlation)
 # My functions
 source("./dl-owid-covid-data.R", echo=FALSE)
 source("./utilfuncs.R", echo=FALSE)
+source("../Routines/stats-dq.R", echo=FALSE)
+
 ## IMF WEO functions
 theDlIMFweoIndivsSrc <-
   file.path("~", "0", "Light", "1", "j", "Code",
@@ -91,7 +94,7 @@ showAnnualGraph(myWEOeconomies.dt, thisEconInd, econMain, yearEndPts)
 xPerfIndics.dt <- crossBuildPerfs(theOWID.dt, thisCovidInd,
                                   myWEOeconomies.dt, thisEconInd)
 
-xPerfIndics.dt %>%
+xPerfIndics.dt <- xPerfIndics.dt %>%
   crossShow(., NULL, econSelect)
 
 xPerfIndics.dt %>%
