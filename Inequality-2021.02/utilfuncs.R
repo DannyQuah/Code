@@ -1,5 +1,5 @@
 # @(#) utilfuncs.R
-# Last-edited: Sat 2021.07.03.0817 -- Danny Quah (me@DannyQuah.com)
+# Last-edited: Tue 2021.07.13.1819 -- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Revision History:
 #  % Sat 2021.02.20.1935 -- Danny Quah (me@DannyQuah.com)
@@ -7,7 +7,7 @@
 # ----------------------------------------------------------------
 
 # ----------------------------------------------------------------
-crossShow <- function(widData.dt, lablEcons, exclEcons, timeSpan) {
+crossShow <- function(widData.dt, lablEcons, timeSpan) {
 # For cross section of economies, plot indicators together with
 # B50c growth. Returns the summary datatable
 # If the max of mltB50c and mltIneqQ falls below currDropThresh
@@ -20,7 +20,6 @@ crossShow <- function(widData.dt, lablEcons, exclEcons, timeSpan) {
   timeLabel  <- paste0(min(timeSpan), "-", max(timeSpan))
   indics.dt <- widData.dt %>%
     filter(theYear %in% timeSpan) %>%
-    filter(!(theISO2c %in% exclEcons)) %>%
     select(theISO2c, econName, theYear, avgB50c, ineqQ)
   theSumm.dt <- indics.dt %>%
     group_by(theISO2c) %>% 
@@ -235,44 +234,6 @@ graphIneqB50 <- function(widData.dt, useEconomy, useCurr) {
   print(myPlot)
 
 # end graphIneqB50
-}
-
-
-# ----------------------------------------------------------------
-regionList <- function(selectRegion, widData.dt) {
-# Return vector of namestrings
-# selectRegion is one of
-#  worldRegions // world regions
-#  subntRegions // subnational regions
-# At some point I need to read this in from official WID sources
-# but for now I'm combining hard-coding this off of "2.2. COUNTRY CODES"
-# in
-#  https://wid.world/codes-dictionary/#packages
-# and extracting off 'economy' in widData.dt
-# ----------------------------------------------------------------
-# No header files
-  worldRegions <- 1
-  subntRegions <- 2
-
-  useData.dt <- widData.dt %>% group_by(theISO2c) %>%
-    slice(1) %>% select(theISO2c) %>% ungroup()
-  if (selectRegion == worldRegions) {
-    useData.dt <- useData.dt %>% filter(grepl('-MER', theISO2c))
-    theNamesStr <- c("QB", "QD", "QE", "QF", "QJ",
-                     "QK", "QM", "QN", "QO", "QP",
-                     "QS", "QT", "QU", "QV", "QW",
-                     "QX", "QY", "WO", "XA", "XF",
-                     "XL", "XM", "XN", "XR",
-                     useData.dt[[1]])
-  } else if (selectRegion == subntRegions) {
-    useData.dt <- useData.dt %>%
-      filter(grepl('CN-|DE-|US-', theISO2c))
-    theNamesStr <- c(useData.dt [[1]])
-  } else {
-    stop("regionList: unknown selectRegion", selectRegion)
-  }
-  return(theNamesStr)
-
 }
 
 # ----------------------------------------------------------------

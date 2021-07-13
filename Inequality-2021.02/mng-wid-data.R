@@ -1,11 +1,101 @@
-# @(#) dl_wid_data.R // World Inequality Database
-# Last-edited: Thu 2021.07.01.1246 -- Danny Quah (me@DannyQuah.com)
+# @(#) mng-wid-data.R // World Inequality Database
+# Last-edited: Tue 2021.07.13.1830 -- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Revision History:
+#  % Tue 2021.07.13.1741 -- Danny Quah (me@DannyQuah.com)
+#    This used to be dl-wid-data.R but I have now added other functions
+#    beyond just downloading, so it's now munging (or managing) WID
+#    data
 #  % Fri 2021.02.12.1817 -- Danny Quah (me@DannyQuah.com)
 #    First draft: R script to download World Inequality Database
 #    data from GitHub repo
 # ----------------------------------------------------------------
+
+# ----------------------------------------------------------------
+ntlEntitiesClean <- function(useWID.dt) {
+# Clean up WID data:
+# - some sensible names
+# - useable national entities (not collections; not unusual places);
+# - symmetrize currencies
+# ----------------------------------------------------------------
+# Sensible variable names quickly
+  myWID.dt <- useWID.dt %>%
+    rename(theYear=year) %>%
+    rename(theISO2c=economy)
+
+# Name the economies;
+# drop an explicit selection, subnational regions, and
+# world region PPP and Market Exchange Rate observations; and
+# for consistent usage, add a variable that is all 1's
+  worldRegions <- 1
+  subntRegions <- 2
+# Exceptional economies to exclude
+# DD - GDR
+# IQ - Iraq
+# KS - ?
+# TM - Turkmenistan
+# VE - USD exchange rate goes through the roof; don't use
+#      if theCurr points to USD. Trap this and others in crossShow()
+# ZZ - Zanzibar
+  xcptEconomies <- c("DD", "IQ", "KS", "TM", "VE", "ZZ")
+  exclEconomies <- c(regionList(subntRegions, myWID.dt),
+                     regionList(worldRegions, myWID.dt),
+                     xcptEconomies
+                    )
+  myWID.dt <- myWID.dt %>%
+    filter(! theISO2c %in% exclEconomies) %>%
+    mutate(econName=countrycode(theISO2c, origin="iso2c",
+                                destination="cldr.name.en")) %>%
+    relocate(econName, .after=theISO2c) %>%
+    mutate(exchRateLCU=1.0)
+
+  return(myWID.dt)
+
+# end ntlEntitiesClean
+}
+
+# ----------------------------------------------------------------
+regionList <- function(selectRegion, widData.dt) {
+# Return vector of namestrings
+# selectRegion is one of
+#  worldRegions // world regions
+#  subntRegions // subnational regions
+# At some point I need to read this in from official WID sources
+# but for now I'm combining hard-coding this off of "2.2. COUNTRY CODES"
+# in
+#  https://wid.world/codes-dictionary/#packages
+# and extracting off 'economy' in widData.dt
+# ----------------------------------------------------------------
+# No header files
+  worldRegions <- 1
+  subntRegions <- 2
+
+  useData.dt <- widData.dt %>% group_by(theISO2c) %>%
+    slice(1) %>% select(theISO2c) %>% ungroup()
+  if (selectRegion == worldRegions) {
+    useData.dt <- useData.dt %>% filter(grepl('-MER', theISO2c))
+    theNamesStr <- c("QB", "QD", "QE", "QF", "QJ",
+                     "QK", "QM", "QN", "QO", "QP",
+                     "QS", "QT", "QU", "QV", "QW",
+                     "QX", "QY", "WO", "XA", "XF",
+                     "XL", "XM", "XN", "XR",
+                     useData.dt[[1]])
+  } else if (selectRegion == subntRegions) {
+    useData.dt <- useData.dt %>%
+      filter(grepl('CN-|DE-|US-', theISO2c))
+    theNamesStr <- c(useData.dt [[1]])
+  } else {
+    stop("regionList: unknown selectRegion", selectRegion)
+  }
+
+  return(theNamesStr)
+
+}
+
+# ----------------------------------------------------------------
+dl_wid_data <- function(blCached = TRUE, blReadOnline = FALSE,
+                        blSilent = FALSE, theAreas = "all",
+                        theYears = "all") {
 #' Download World Inequality Database data from GitHub repo
 #' p0p50, p90p100 - hardwired below because that's the easiest
 #' way to slam together the datatables
@@ -23,12 +113,8 @@
 #' @return Data table
 #'
 #' @examples
-#' tbd
-#'
 #' @export
-dl_wid_data <- function(blCached = TRUE, blReadOnline = FALSE,
-                        blSilent = FALSE, theAreas = "all",
-                        theYears = "all") {
+# ----------------------------------------------------------------
   if (length(blSilent) > 1 || !is.logical(blSilent)) stop(
     "'blSilent' has to be a single logical value."
   )
@@ -210,5 +296,5 @@ dl_wid_data <- function(blCached = TRUE, blReadOnline = FALSE,
 }
 
 
-# eof dl_wid_data.R
+# eof mng-wid-data.R
 

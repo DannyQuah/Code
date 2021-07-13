@@ -1,6 +1,6 @@
 #!/usr/bin/env R
 # @(#) covid-base-2021.01.R
-# Last-edited: Fri 2021.07.02.2313  -- Danny Quah (me@DannyQuah.com)
+# Last-edited: Tue 2021.07.13.1740  -- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Revision History:
 #  % Sat 2021.01.30.1630  -- Danny Quah (me@DannyQuah.com)
@@ -23,7 +23,7 @@ library(corrplot)
 library(correlation)
 
 # My functions
-source("./dl-owid-covid-data.R", echo=FALSE)
+source("./mng-owid-covid-data.R", echo=FALSE)
 source("./utilfuncs.R", echo=FALSE)
 source("../Routines/stats-dq.R", echo=FALSE)
 
@@ -54,6 +54,11 @@ theWIDdata.dt <- dl_wid_data(blCached=TRUE, blReadOnline=FALSE,
                              blSilent=FALSE, theAreas=useAreas,
                              theYears=useYears)
 theWIDdata.dt <- theWIDdata.dt %>% mutate(exchRateLCU=1.0)
+# Sensible variable names in quickly
+theWIDdata.dt <- theWIDdata.dt %>%
+  rename(theYear=year) %>%
+  rename(theISO2c=economy)
+
 
 theOWID.dt <- theOWID.dt %>%
     rename(theISO3c=iso_code) %>% rename(theDate=date) %>%

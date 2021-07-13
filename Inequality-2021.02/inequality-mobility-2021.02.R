@@ -1,6 +1,6 @@
 #!/usr/bin/env R
 # @(#) inequality-mobility-2021.02.R
-# Last-edited: Sat 2021.07.03.0912 -- Danny Quah (me@DannyQuah.com)
+# Last-edited: Tue 2021.07.13.1829 -- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Revision History:
 #  % Fri 2021.02.12.1733  -- Danny Quah (me@DannyQuah.com)
@@ -16,7 +16,7 @@ library(tidyverse)
 library(lubridate)
 ## remotes::install_github("WIDworld/wid-r-tool") 
 library(wid)
-source("./dl-wid-data.R", echo = FALSE)
+source("./mng-wid-data.R", echo = FALSE)
 source("./utilfuncs.R", echo = FALSE)
 source("../Routines/stats-dq.R", echo=FALSE)
 
@@ -32,36 +32,7 @@ theWIDdata.dt <- dl_wid_data(blCached=TRUE, blReadOnline=FALSE,
                              blSilent=FALSE, theAreas=useAreas,
                              theYears=useYears)
 
-# Sensible variable names in quickly
-theWIDdata.dt <- theWIDdata.dt %>%
-  rename(theYear=year) %>%
-  rename(theISO2c=economy)
-
-# Name the economies;
-# drop an explicit selection, subnational regions, and
-# world region PPP and Market Exchange Rate observations; and
-# for consistent usage, add a variable that is all 1's
-worldRegions <- 1
-subntRegions <- 2
-# Exceptional economies to exclude
-# DD - GDR
-# IQ - Iraq
-# KS - ?
-# TM - Turkmenistan
-# VE - USD exchange rate goes through the roof; don't use
-#      if theCurr points to USD. Trap this and others in crossShow()
-# ZZ - Zanzibar
-xcptEconomies <- c("DD", "IQ", "KS", "TM", "VE", "ZZ")
-exclEconomies <- c(regionList(subntRegions, theWIDdata.dt),
-                   regionList(worldRegions, theWIDdata.dt),
-                   xcptEconomies
-                  )
-theWIDdata.dt <- theWIDdata.dt %>%
-  filter(! theISO2c %in% exclEconomies) %>%
-  mutate(econName=countrycode(theISO2c, origin="iso2c",
-                              destination="cldr.name.en")) %>%
-  relocate(econName, .after=theISO2c) %>%
-  mutate(exchRateLCU=1.0)
+theWIDdata.dt <- ntlEntitiesClean(theWIDdata.dt)
 
 # Choose one of the following to determine currency denomination to use.
 # Because the underlying data are already LCU in constant prices,
@@ -81,8 +52,6 @@ nameCurr <- currUse.dt$nameCurr[theCurr]
 vrbCurr  <- theWIDdata.dt[[useCurr]]
 currAxis <- paste0(nameCurr, "x10^3")
 
-theYears <- c(1980, 2000, 2019)
-
 theWIDdata.dt <- theWIDdata.dt %>%
   mutate(avgNIuse = avgNatlInc / (1000 * vrbCurr)) %>%
   mutate(avgB50c  = shrB50 * avgNIuse / 0.5) %>%
@@ -90,6 +59,8 @@ theWIDdata.dt <- theWIDdata.dt %>%
   mutate(ineqQ    = avgT10c - avgB50c) %>%
   mutate(ineqq    = ineqQ / avgB50c)
 
+# Selected year breaks
+theYears <- c(1980, 2000, 2019)
 # Selected economies
 myEconomies <- c("SG", "US", "CN")
 graphThem   <- TRUE
@@ -103,8 +74,7 @@ labelEconomies <- c("SG", "US", "CN", "NO",
 
 # Cross section of economies
 theTimeSpan <- c(2000:2019)
-xSect.dt <- crossShow(theWIDdata.dt, labelEconomies,
-                      exclEconomies, theTimeSpan)
+xSect.dt <- crossShow(theWIDdata.dt, labelEconomies, theTimeSpan)
 
 # Take a look at the economies
 xSect.dt %>% filter(theISO2c %in% labelEconomies) %>%
