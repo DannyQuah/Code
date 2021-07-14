@@ -1,5 +1,5 @@
 # @(#) mng-wid-data.R // World Inequality Database
-# Last-edited: Tue 2021.07.13.1830 -- Danny Quah (me@DannyQuah.com)
+# Last-edited: Wed 2021.07.14.2129 -- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Revision History:
 #  % Tue 2021.07.13.1741 -- Danny Quah (me@DannyQuah.com)
@@ -10,6 +10,27 @@
 #    First draft: R script to download World Inequality Database
 #    data from GitHub repo
 # ----------------------------------------------------------------
+
+# ----------------------------------------------------------------
+makeDistrStats <- function(useWID.dt, theCurr) {
+# Return datatable with newly-constructed variables
+# characterizing the income distribution through time.
+# Convert to comparability across national entities using
+# currency pointed to by ndxCurr
+# 1 - LCU; 2 - USD; 3 - EUR (don't use)
+# ----------------------------------------------------------------
+  vrbCurr  <- useWID.dt[[theCurr]]
+  myWID.dt <- useWID.dt %>%
+    mutate(avgNIuse = avgNatlInc / (1000 * vrbCurr)) %>%
+    mutate(avgB50c  = shrB50 * avgNIuse / 0.5) %>%
+    mutate(avgT10c  = shrT10 * avgNIuse / 0.1) %>%
+    mutate(ineqQ    = avgT10c - avgB50c) %>%
+    mutate(ineqq    = ineqQ / avgB50c)
+
+  return(myWID.dt)
+
+# end of makeDistrStats
+}
 
 # ----------------------------------------------------------------
 ntlEntitiesClean <- function(useWID.dt) {
@@ -90,6 +111,7 @@ regionList <- function(selectRegion, widData.dt) {
 
   return(theNamesStr)
 
+# end of regionList
 }
 
 # ----------------------------------------------------------------
@@ -293,6 +315,8 @@ dl_wid_data <- function(blCached = TRUE, blReadOnline = FALSE,
           percNames, distNames, aggrNames)
 
   return(theData.dt)
+
+# end of dl_wid_data
 }
 
 

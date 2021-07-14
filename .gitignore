@@ -1,5 +1,5 @@
 # @(#) Code/.gitignore
-# Last-edited: Mon 2021.02.15.1752-- Danny Quah (me@DannyQuah.com)
+# Last-edited: Wed 2021.07.14.1810 -- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Revision History:
 #  % Mon 2021.02.15.1731 -- Danny Quah (me@DannyQuah.com)
@@ -18,7 +18,6 @@
 2015.09-Asia-Pew-Attitudes/
 2018.01-3D-DS/
 Python-2020.07/
-Routines/
 Sandbox-2014.03/
 webgl-globe-master.zip
 

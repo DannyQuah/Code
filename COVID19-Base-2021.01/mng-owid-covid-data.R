@@ -1,12 +1,18 @@
-# @(#) dl-owid-covid-data.R // Our World in Data
-# Last-edited: Sun 2021.06.13.1851 -- Danny Quah (me@DannyQuah.com)
+# @(#) mng-owid-covid-data.R // Our World in Data
+# Last-edited: Wed 2021.07.14.2206 -- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Revision History:
+#  % Wed 2021.07.14.2204 -- Danny Quah (me@DannyQuah.com)
+#    This used to be dl-owid-covid-data.R but I am adding other
+#    functions beyond just downloading, so it's now munging (or
+#    managing) COVID data from OWID
 #  % Fri 2021.02.12.1955 -- Danny Quah (me@DannyQuah.com)
 #    Refactor with string constants for portability
 #  % Sun 2021.01.31.1101 -- Danny Quah (me@DannyQuah.com)
 #    First draft: R script to download COVID data from Our World in Data
 # ----------------------------------------------------------------
+dl_owid_covid_data <- function(blCached = FALSE, blReadOnline = FALSE,
+                               blSilent = FALSE) {
 #' Download Our World in Data COVID data
 #' Source information at
 #' (\url{https://github.com/owid/covid-19-data/tree/master/public/data}).
@@ -26,8 +32,7 @@
 #' tbd
 #'
 #' @export
-dl_owid_covid_data <- function(blCached = FALSE, blReadOnline = FALSE,
-                               blSilent = FALSE) {
+# ----------------------------------------------------------------
   if (length(blCached) > 1 || !is.logical(blCached)) {
     stop("'blCached' has to be a single logical value.")
   }
@@ -95,5 +100,5 @@ dl_owid_covid_data <- function(blCached = FALSE, blReadOnline = FALSE,
   return(theData.dt)
 }
 
-# eof dl-owid-covid-data.R
+# eof mng-owid-covid-data.R
 

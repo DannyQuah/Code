@@ -1,12 +1,12 @@
 #!/usr/bin/env R
-# @(#) dl-imf-weo-aggrts.R
-# Last-edited: Sun 2021.06.06.2248 -- Danny Quah (me@DannyQuah.com)
+# @(#) mng-imf-weo-aggrts.R
+# Last-edited: Wed 2021.07.14.2225 -- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
-# Returns list of objects:
-#  Econ Groupings - myEconGrpsRefCodes
-#                   myWEOeconGrps.dt
-#                   myEconGrpsNamesCodes
 # Revision History:
+##  % Wed 2021.07.14.2204 -- Danny Quah (me@DannyQuah.com)
+#    This used to be dl-imf-weo-aggrts.R but I am adding other
+#    functions beyond just downloading, so it's now munging (or
+#    managing) IMF-WEO data
 #  % Sun 2021.04.18.1726 -- Danny Quah (me@DannyQuah.com)
 #    I had to add last col "Estimates Start After" in WEOApr2021alla.xls
 #    (even if all blank), as its absence messes up the code
@@ -18,12 +18,17 @@
 #    Previously inline IMF-WEO-Dynamics-2021.01.R but pulled out for
 #    general use
 # ----------------------------------------------------------------
+dlIMFweoAggrts <- function(blCached = FALSE, blReadOnline = FALSE,
+                           blSilent = FALSE, WEOcurrAggrts) {
+# Returns list of objects:
+#  Econ Groupings - myEconGrpsRefCodes
+#                   myWEOeconGrps.dt
+#                   myEconGrpsNamesCodes
 #'
 #' @examples
 #' tbd
 #' @export
-dlIMFweoAggrts <- function(blCached = FALSE, blReadOnline = FALSE,
-                           blSilent = FALSE, WEOcurrAggrts) {
+# ----------------------------------------------------------------
   if (length(blCached) > 1 || !is.logical(blCached)) stop(
     "'blCached' has to be a single logical value."
   )
@@ -163,5 +168,5 @@ dlIMFweoAggrts <- function(blCached = FALSE, blReadOnline = FALSE,
   return(myWEOaggrts)
 }
 
-# eof dl-imf-weo-aggrts.R
+# eof mng-imf-weo-aggrts.R
 

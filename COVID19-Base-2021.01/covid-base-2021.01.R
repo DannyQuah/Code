@@ -1,6 +1,6 @@
 #!/usr/bin/env R
 # @(#) covid-base-2021.01.R
-# Last-edited: Tue 2021.07.13.1740  -- Danny Quah (me@DannyQuah.com)
+# Last-edited: Wed 2021.07.14.2218  -- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Revision History:
 #  % Sat 2021.01.30.1630  -- Danny Quah (me@DannyQuah.com)
@@ -30,41 +30,55 @@ source("../Routines/stats-dq.R", echo=FALSE)
 ## IMF WEO functions
 theDlIMFweoIndivsSrc <-
   file.path("~", "0", "Light", "1", "j", "Code",
-            "IMF-WEO-Dynamics-2021.01", "dl-imf-weo-indivs.R")
+            "IMF-WEO-Dynamics-2021.01", "mng-imf-weo-indivs.R")
 source(theDlIMFweoIndivsSrc, echo=FALSE)
 ## WID functions
 theDlWIDsrc <-
   file.path("~", "0", "Light", "1", "j", "Code",
-            "Inequality-2021.02", "dl-wid-data.R")
+            "Inequality-2021.02", "mng-wid-data.R")
 source(theDlWIDsrc, echo=FALSE)
 
 # Read in the data
+
+  ## OWID data straightforward but also some renaming
 theOWID.dt <- dl_owid_covid_data(blCached=TRUE, blReadOnline=FALSE,
                                  blSilent=FALSE)
+theOWID.dt <- theOWID.dt %>%
+    rename(theISO3c=iso_code) %>% rename(theDate=date) %>%
+    mutate(theDate=as.Date(theDate))
+
+
+  ## IMF WEO data; some processing, and some renaming
 myWEOindivs <- dlIMFweoIndivs(blCached=TRUE, blReadOnline=FALSE,
                               blSilent=FALSE,
                               WEOcurrIndivs="WEOApr2021all")
 myWEOeconomies.dt      <- myWEOindivs$myWEOeconomies.dt
 myWEOeconomiesRefCodes <- myWEOindivs$myEconomiesRefCodes
 remove(myWEOindivs)
+myWEOeconomies.dt <- myWEOeconomies.dt %>%
+  rename(theISO3c=ISO) %>% rename(theYear=year)
 
+  # World Inequality Data
 useAreas      <- "all"
 useYears      <- 1980:2019
 theWIDdata.dt <- dl_wid_data(blCached=TRUE, blReadOnline=FALSE,
                              blSilent=FALSE, theAreas=useAreas,
                              theYears=useYears)
-theWIDdata.dt <- theWIDdata.dt %>% mutate(exchRateLCU=1.0)
-# Sensible variable names in quickly
-theWIDdata.dt <- theWIDdata.dt %>%
-  rename(theYear=year) %>%
-  rename(theISO2c=economy)
+theWIDdata.dt <- theWIDdata.dt %>% ntlEntitiesClean()
 
+# Choose one of the following to determine currency denomination to use.
+# Because the underlying data are already LCU in constant prices,
+# setting the exchange rate to 1.0 catches that.
 
-theOWID.dt <- theOWID.dt %>%
-    rename(theISO3c=iso_code) %>% rename(theDate=date) %>%
-    mutate(theDate=as.Date(theDate))
-myWEOeconomies.dt <- myWEOeconomies.dt %>%
-  rename(theISO3c=ISO) %>% rename(theYear=year)
+currUse.dt <- data.table(
+  thisCurr = c("exchRateLCU", "exchRateUS", "exchRateEU"),
+  nameCurr = c("LCU", "USD", "EUR")
+  )
+  # Choose index into currencies: 1- LCU, 2 - USD, 3 - EU (don't use)
+ndxCurr <- 2
+useCurr <- currUse.dt$thisCurr[ndxCurr]
+theWIDdata.dt <- makeDistrStats(theWIDdata.dt, useCurr)
+
 
 econMain  <- c("GBR", "USA", "IND", "BRA", "DEU", "CHN", "SGP")
 econASEAN <- c("BRN", "KHM", "IDN", "LAO", "MYS",

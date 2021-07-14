@@ -1,6 +1,6 @@
 #!/usr/bin/env R
 # @(#) inequality-mobility-2021.02.R
-# Last-edited: Tue 2021.07.13.1829 -- Danny Quah (me@DannyQuah.com)
+# Last-edited: Wed 2021.07.14.2210 -- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Revision History:
 #  % Fri 2021.02.12.1733  -- Danny Quah (me@DannyQuah.com)
@@ -31,34 +31,23 @@ useYears      <- 1980:2019
 theWIDdata.dt <- dl_wid_data(blCached=TRUE, blReadOnline=FALSE,
                              blSilent=FALSE, theAreas=useAreas,
                              theYears=useYears)
-
-theWIDdata.dt <- ntlEntitiesClean(theWIDdata.dt)
+theWIDdata.dt <- theWIDdata.dt %>% ntlEntitiesClean()
 
 # Choose one of the following to determine currency denomination to use.
 # Because the underlying data are already LCU in constant prices,
 # setting the exchange rate to 1.0 catches that.
 
-inLCU <- "exchRateLCU"
-inUSD <- "exchRateUS"
-inEUR <- "exchRateEU"
-
 currUse.dt <- data.table(
-  thisCurr = c(inLCU, inUSD, inEUR),
+  thisCurr = c("exchRateLCU", "exchRateUS", "exchRateEU"),
   nameCurr = c("LCU", "USD", "EUR")
-                        )
-theCurr  <- 2 # Choose index into currUse.dt // 1 - LCU, 2 - USD, ...
-useCurr  <- currUse.dt$thisCurr[theCurr]
-nameCurr <- currUse.dt$nameCurr[theCurr]
-vrbCurr  <- theWIDdata.dt[[useCurr]]
-currAxis <- paste0(nameCurr, "x10^3")
+  )
+  # Choose index into currencies: 1- LCU, 2 - USD, 3 - EU (don't use)
+ndxCurr <- 2
+lblCurr <- currUse.dt$nameCurr[ndxCurr]
+useCurr <- currUse.dt$thisCurr[ndxCurr]
+theWIDdata.dt <- makeDistrStats(theWIDdata.dt, useCurr)
 
-theWIDdata.dt <- theWIDdata.dt %>%
-  mutate(avgNIuse = avgNatlInc / (1000 * vrbCurr)) %>%
-  mutate(avgB50c  = shrB50 * avgNIuse / 0.5) %>%
-  mutate(avgT10c  = shrT10 * avgNIuse / 0.1) %>%
-  mutate(ineqQ    = avgT10c - avgB50c) %>%
-  mutate(ineqq    = ineqQ / avgB50c)
-
+currAxis <- paste0(lblCurr, "x10^3")
 # Selected year breaks
 theYears <- c(1980, 2000, 2019)
 # Selected economies

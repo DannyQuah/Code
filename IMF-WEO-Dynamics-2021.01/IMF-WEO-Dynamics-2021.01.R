@@ -1,6 +1,6 @@
 #!/usr/bin/env R
 # @(#) IMF-WEO-Dynamics-2021.01.R
-# Last-edited: Sat 2021.06.05.0527  -- Danny Quah (me@DannyQuah.com)
+# Last-edited: Wed 2021.07.14.2226  -- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Revision History:
 #  % Fri 2021.01.01.1836  -- Danny Quah (me@DannyQuah.com)
@@ -16,8 +16,8 @@ library(tidyverse)
 library(zoo)
 library(ggthemes)
 
-source("./dl-imf-weo-aggrts.R", echo=FALSE)
-source("./dl-imf-weo-indivs.R", echo=FALSE)
+source("./mng-imf-weo-aggrts.R", echo=FALSE)
+source("./mng-imf-weo-indivs.R", echo=FALSE)
 
 # My call conventions given in World-Economies-2021.01.R
 ################################################################

@@ -1,11 +1,12 @@
 #!/usr/bin/env R
-# @(#) dl-imf-weo-indivs.R
-# Last-edited: Sun 2021.06.06.2246 -- Danny Quah (me@DannyQuah.com)
+# @(#) mng-imf-weo-indivs.R
+# Last-edited: Wed 2021.07.14.2225 -- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
-# Returns list of objects:
-#  Economies      - myEconomiesRefCodes
-#                   myWEOeconomies.dt
 # Revision History:
+##  % Wed 2021.07.14.2204 -- Danny Quah (me@DannyQuah.com)
+#    This used to be dl-imf-weo-indivs.R but I am adding other
+#    functions beyond just downloading, so it's now munging (or
+#    managing) IMF-WEO data
 #  % Mon 2021.04.12.1825 -- Danny Quah (me@DannyQuah.com)
 #    First draft: R script to download data from IMF WEO World 
 #    Economic Outlook data (from my GitHub repo as needed, since
@@ -13,12 +14,16 @@
 #    Previously inline IMF-WEO-Dynamics-2021.01.R but pulled out for
 #    general use
 # ----------------------------------------------------------------
+dlIMFweoIndivs <- function(blCached=FALSE, blReadOnline=FALSE,
+                           blSilent=FALSE, WEOcurrIndivs) {
+# Returns list of objects:
+#  Economies      - myEconomiesRefCodes
+#                   myWEOeconomies.dt
 #'
 #' @examples
 #' tbd
 #' @export
-dlIMFweoIndivs <- function(blCached=FALSE, blReadOnline=FALSE,
-                           blSilent=FALSE, WEOcurrIndivs) {
+# ----------------------------------------------------------------
   if (length(blCached) > 1 || !is.logical(blCached)) stop(
     "'blCached' has to be a single logical value."
   )
@@ -144,5 +149,5 @@ dlIMFweoIndivs <- function(blCached=FALSE, blReadOnline=FALSE,
 # end of dlIMFweoIndivs 
 }
 
-# eof dl-imf-weo-indivs.R
+# eof mng-imf-weo-indivs.R
 
