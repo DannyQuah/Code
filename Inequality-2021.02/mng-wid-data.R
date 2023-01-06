@@ -1,5 +1,5 @@
 # @(#) mng-wid-data.R // World Inequality Database
-# Last-edited: Wed 2021.07.14.2129 -- Danny Quah (me@DannyQuah.com)
+# Last-edited: 2022.05.23.1351.Mon -- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Revision History:
 #  % Tue 2021.07.13.1741 -- Danny Quah (me@DannyQuah.com)
@@ -21,11 +21,11 @@ makeDistrStats <- function(useWID.dt, theCurr) {
 # ----------------------------------------------------------------
   vrbCurr  <- useWID.dt[[theCurr]]
   myWID.dt <- useWID.dt %>%
-    mutate(avgNIuse = avgNatlInc / (1000 * vrbCurr)) %>%
-    mutate(avgB50c  = shrB50 * avgNIuse / 0.5) %>%
-    mutate(avgT10c  = shrT10 * avgNIuse / 0.1) %>%
-    mutate(ineqQ    = avgT10c - avgB50c) %>%
-    mutate(ineqq    = ineqQ / avgB50c)
+    mutate(avgNIc  = avgNatlInc / (1000 * vrbCurr)) %>%
+    mutate(avgB50c = shrB50 * avgNIc / 0.5) %>%
+    mutate(avgT10c = shrT10 * avgNIc / 0.1) %>%
+    mutate(ineqQ   = avgT10c - avgB50c) %>%
+    mutate(ineqq   = ineqQ / avgB50c)
 
   return(myWID.dt)
 
@@ -65,9 +65,13 @@ ntlEntitiesClean <- function(useWID.dt) {
                     )
   myWID.dt <- myWID.dt %>%
     filter(! theISO2c %in% exclEconomies) %>%
+    mutate(theISO3c=countrycode(theISO2c, origin="iso2c",
+                                destination="iso3c")) %>%
     mutate(econName=countrycode(theISO2c, origin="iso2c",
                                 destination="cldr.name.en")) %>%
-    relocate(econName, .after=theISO2c) %>%
+    relocate(theISO3c, .after=theISO2c) %>%
+    relocate(econName, .after=theISO3c) %>%
+    select(-theISO2c) %>%
     mutate(exchRateLCU=1.0)
 
   return(myWID.dt)

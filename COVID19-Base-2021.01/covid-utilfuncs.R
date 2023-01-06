@@ -1,6 +1,6 @@
 #!/usr/bin/env R
-# @(#) utilfuncs.R
-# Last-edited: Fri 2021.07.02.2313 -- Danny Quah (me@DannyQuah.com)
+# @(#) COVID19-Base-2021.01/covid-utilfuncs.R
+# Last-edited: Fri 2021.07.16.1330 -- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Revision History:
 #  % Sat 2021.05.22.1435 -- Danny Quah (me@DannyQuah.com)
@@ -10,16 +10,21 @@
 
 # ----------------------------------------------------------------
 crossBuildPerfs <- function(covidInd.dt, theCovidInd,
-                             econsInd.dt, theEconInd) {
+                            econsInd.dt, theEconInd,
+                            useWID.dt, theDistrInds) {
 # ----------------------------------------------------------------
-# Build and return cross section of performance indicators.
+# Build and return (joined) cross section of performance
+# indicators.
+# Also:
 # Prune cross-section sample
 #  - by lastDate, theCovidInd (total cases or deaths per mn)
-#      >= 0.50 (Burundi BDI at 0.505, Laos LAO 0.41, VNM 0.54)
-#  - must be in both covidInd.dt and econsInd.dt
+#      >= 0.50 (Burundi BDI at 0.505, Laos LAO 0.41, VNM 0.54
+#               in late May, but obviously changed since)
+#  - must be in all covidInd.dt, econsInd.dt, useWID.dt
 #  - total population in 2020 >= minPopln 1mn
 # ----------------------------------------------------------------
 
+# ## COVID indicator
 # Latest day on COVID indicator; COVID performance is
 # reciprocal of deaths/cases per thousand on that day
   covidIndVrbl <- sym(theCovidInd)
@@ -36,6 +41,7 @@ crossBuildPerfs <- function(covidInd.dt, theCovidInd,
     rename(lastDate=theDate) %>%
     select(theISO3c, lastDate, covidPerf)
 
+# ## Aggregate economy indicator
 # Economic performance is how much growth changed over the course of
 # the pandemic compared to growth before the pandemic.
 # Take the course of the pandemic to be 2020:2021 and before to be
@@ -78,6 +84,10 @@ crossBuildPerfs <- function(covidInd.dt, theCovidInd,
     mutate(econName=countrycode(theISO3c, origin="iso3c",
                                 destination="cldr.name.en")) %>%
     relocate(econName, .before=theISO3c)
+
+# ## Income distribution indicators
+# 
+
 
   return(theSumm.dt)
 
@@ -280,6 +290,25 @@ showDailyGraph <- function(theData.dt, theVrbl, theEcons,
 # end of showDailyGraph
 }
 
+
+# ----------------------------------------------------------------
+lastAvail <- function(useOWID.dt, theseEcons, thisIndic) {
+# ----------------------------------------------------------------
+# Return the latest date recorded common to these economies of
+# interest
+  # ----------------------------------------------------------------
+  tmp.dt <- useOWID.dt %>% filter(theISO3c %in% theseEcons) %>%
+    group_by(theISO3c) %>%
+    filter(!is.na(!!thisIndic)) %>%
+    arrange(theDate) %>% slice_tail() %>%
+    ungroup() %>%
+    arrange(theDate) %>% slice_head()
+
+  return(tmp.dt$theDate)
+
+  # end of lastAvail
+}
+
 # ----------------------------------------------------------------
 showAnnualGraph <- function(theData.dt, theVrbl, theEcons,
                             theYearEndPts) {
@@ -306,5 +335,5 @@ showAnnualGraph <- function(theData.dt, theVrbl, theEcons,
 # end of showAnnualGraph
 }
 
-# eof utilfuncs.R
+# eof COVID19-Base-2021.01/covid-utilfuncs.R
 

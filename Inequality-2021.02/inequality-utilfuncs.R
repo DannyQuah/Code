@@ -1,5 +1,6 @@
-# @(#) utilfuncs.R
-# Last-edited: Tue 2021.07.13.1819 -- Danny Quah (me@DannyQuah.com)
+#!/usr/bin/env R
+# @(#) Inequality-2021.02/inequality-utilfuncs.R
+# Last-edited: 2022.05.23.1803.Mon -- Danny Quah (me@DannyQuah.com)
 # ----------------------------------------------------------------
 # Revision History:
 #  % Sat 2021.02.20.1935 -- Danny Quah (me@DannyQuah.com)
@@ -20,9 +21,9 @@ crossShow <- function(widData.dt, lablEcons, timeSpan) {
   timeLabel  <- paste0(min(timeSpan), "-", max(timeSpan))
   indics.dt <- widData.dt %>%
     filter(theYear %in% timeSpan) %>%
-    select(theISO2c, econName, theYear, avgB50c, ineqQ)
+    select(theISO3c, econName, theYear, avgB50c, ineqQ)
   theSumm.dt <- indics.dt %>%
-    group_by(theISO2c) %>% 
+    group_by(theISO3c) %>% 
     summarize(econName = first(econName),
               locB50c  = median(avgB50c),
               grrB50c  = longGrowth(avgB50c, theYear),
@@ -43,8 +44,8 @@ crossShow <- function(widData.dt, lablEcons, timeSpan) {
     labs(x="B50c-X", y="ineqQ-X", title=pltLabel) +
     geom_point(color="black", size=1.5) +
     geom_label_repel(data =
-                     subset(theSumm.dt, theISO2c %in% lablEcons),
-                     aes(label=theISO2c),
+                     subset(theSumm.dt, theISO3c %in% lablEcons),
+                     aes(label=theISO3c),
                      box.padding=unit(2.0, "lines"),
                      point.padding=unit(0.35, "lines"),
                      label.padding=unit(0.25, "lines"),
@@ -69,8 +70,8 @@ crossShow <- function(widData.dt, lablEcons, timeSpan) {
     labs(x="B50c-X", y="Residual ineqQ-X", title=pltLabel) +
     geom_point(color="black", size=1.5) +
     geom_label_repel(data =
-                     subset(theSumm.dt, theISO2c %in% lablEcons),
-                     aes(label=theISO2c),
+                     subset(theSumm.dt, theISO3c %in% lablEcons),
+                     aes(label=theISO3c),
                      box.padding=unit(2.0, "lines"),
                      point.padding=unit(0.35, "lines"),
                      label.padding=unit(0.25, "lines"),
@@ -90,8 +91,8 @@ crossShow <- function(widData.dt, lablEcons, timeSpan) {
     labs(x="ineqQ", y="B50c-X", title=pltLabel) +
     geom_point(color="black", size=1.5) +
     geom_label_repel(data =
-                     subset(theSumm.dt, theISO2c %in% lablEcons),
-                     aes(label=theISO2c),
+                     subset(theSumm.dt, theISO3c %in% lablEcons),
+                     aes(label=theISO3c),
                      box.padding=unit(2.0, "lines"),
                      point.padding=unit(0.35, "lines"),
                      label.padding=unit(0.25, "lines"),
@@ -112,8 +113,8 @@ crossShow <- function(widData.dt, lablEcons, timeSpan) {
     labs(x="ineqQ", y="ineqQ-X", title=pltLabel) +
     geom_point(color="black", size=1.5) +
     geom_label_repel(data =
-                     subset(theSumm.dt, theISO2c %in% lablEcons),
-                     aes(label=theISO2c),
+                     subset(theSumm.dt, theISO3c %in% lablEcons),
+                     aes(label=theISO3c),
                      box.padding=unit(2.0, "lines"),
                      point.padding=unit(0.35, "lines"),
                      label.padding=unit(0.25, "lines"),
@@ -160,7 +161,7 @@ summaryShow <- function(widData.dt, useEconomy, useCurr, useYears,
   }
 
   theIndics.dt <- widData.dt %>%
-    filter(theISO2c == useEconomy) %>% filter(theYear %in% useYears) %>%
+    filter(theISO3c == useEconomy) %>% filter(theYear %in% useYears) %>%
     select(avgB50c, ineqQ, avgT10c)
   theIndics.v <- theIndics.dt[[1]]
   theOutp.str <- " B50 "
@@ -210,7 +211,7 @@ graphIneqB50 <- function(widData.dt, useEconomy, useCurr) {
 # ----------------------------------------------------------------
 # Graph inequality and B50
   myPlot <- widData.dt %>%
-    filter(theISO2c == useEconomy) %>%
+    filter(theISO3c == useEconomy) %>%
     ggplot(., aes(x = theYear)) +
       labs(title = paste0(useEconomy, " Ineq, B50"),
           y = useCurr) +
@@ -224,7 +225,7 @@ graphIneqB50 <- function(widData.dt, useEconomy, useCurr) {
 
     # Graph B50
   myPlot <- widData.dt %>%
-      filter(theISO2c == useEconomy) %>%
+      filter(theISO3c == useEconomy) %>%
       ggplot(., aes(x = theYear)) +
         labs(title = paste0(useEconomy, " B50"), y = useCurr) +
         geom_line(aes(y = avgB50c), color = "darkred",
@@ -247,7 +248,7 @@ addChecks <- function(widData.dt, useEconomy, useVrbCurr) {
     mutate(trhT10d  = trhT10 / (1000 * vrbCurr))
 
   widData.dt %>%
-    filter(theISO2c == useEconomy) %>%
+    filter(theISO3c == useEconomy) %>%
     ggplot(., aes(x = theYear)) +
     geom_line(aes(y = avgB50c), color = "darkred",
               linetype = "solid", size = 1.5) +
@@ -258,5 +259,5 @@ addChecks <- function(widData.dt, useEconomy, useVrbCurr) {
 }
 
 
-# eof utilfuncs.R
+# eof Inequality-2021.02/inequality-utilfuncs.R
 
